@@ -13,7 +13,10 @@
             "args": ["fable", "yarn-run", "start" ],
             "command": "dotnet",
             "isBackground": true,
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "problemMatcher": {
                 "fileLocation": "absolute",
                 "background": {
