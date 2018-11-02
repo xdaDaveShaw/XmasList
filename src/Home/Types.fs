@@ -1,6 +1,9 @@
 module Home.Types
 
-type Model = string
+type Model = {
+  Name: string
+  Accepted: bool }
 
 type Msg =
   | ChangeStr of string
+  | AcceptName

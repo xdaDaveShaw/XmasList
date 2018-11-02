@@ -7,6 +7,7 @@ open Fable.Helpers.React.Props
 open Types
 
 let root model dispatch =
+
   div
     [ ]
     [ p
@@ -15,10 +16,16 @@ let root model dispatch =
             [ ClassName "input"
               Type "text"
               Placeholder "Type your name"
-              DefaultValue model
+              DefaultValue model.Name
               AutoFocus true
-              OnChange (fun ev -> !!ev.target?value |> ChangeStr |> dispatch ) ] ]
+              ReadOnly model.Accepted
+              OnChange (fun ev -> !!ev.target?value |> ChangeStr |> dispatch ) ]
+          a
+            [ ClassName "button"
+              OnClick (fun _ -> dispatch AcceptName ) ]
+            [ str "Done" ]
+        ]
       br [ ]
       span
         [ ]
-        [ str (sprintf "Hello %s" model) ] ]
+        [ str (sprintf "Hello %s" model.Name) ] ]
