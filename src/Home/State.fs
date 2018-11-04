@@ -4,7 +4,9 @@ open Elmish
 open Types
 
 let init () : Model * Cmd<Msg> =
-  { Name= ""; Accepted= false}, []
+  { Name= ""
+    Accepted = false },
+  []
 
 let update msg model : Model * Cmd<Msg> =
   match msg with

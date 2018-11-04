@@ -82,6 +82,9 @@ NUGET
       System.Threading.Thread (>= 4.0) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Threading.ThreadPool (>= 4.0.10) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Threading.Timer (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
+    Fulma (1.0)
+      Fable.Core (>= 2.0) - restriction: >= netstandard2.0
+      Fable.React (>= 4.0.1) - restriction: >= netstandard2.0
     Microsoft.NETCore.App (2.1.5) - restriction: >= netcoreapp2.0
     Microsoft.NETCore.Platforms (2.1.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.6) (< netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (>= netstandard1.6) (< portable-net45+win8+wp8+wpa81)) (&& (>= netstandard1.6) (< portable-net45+win8+wpa81))
     Microsoft.NETCore.Targets (2.1) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.6) (< netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
