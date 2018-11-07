@@ -41,7 +41,6 @@ let knownUi model dispatch =
       Control.div [ Control.IsExpanded ] [
         Input.text [
           Input.Value model.Current.Description
-          Input.DefaultValue model.Current.Description
           Input.OnChange (fun ev -> !!ev.target?value |> UpdatingCurrent |> dispatch)
           Input.Placeholder "What do you want?"
           Input.Props [ Props.AutoFocus true ] ]
