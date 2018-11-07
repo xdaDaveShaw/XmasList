@@ -25,7 +25,7 @@ let unknownUi model dispatch =
         Button.Input.submit
           [ Button.Color IsPrimary
             Button.OnClick (fun _ -> dispatch AcceptName)
-            Button.Props [ Value "Done asd" ] ] ] ]
+            Button.Props [ Value "Done" ] ] ] ]
   ]
 
 let knownUi model dispatch =
