@@ -10,6 +10,8 @@ type Model = {
   IsAccepted: bool
   Current: Item
   Items: Item list
+  IsSending: bool
+  IsSent: bool
 }
 
 type Msg =
@@ -17,4 +19,6 @@ type Msg =
   | AcceptName
   | UpdatingCurrent of string
   | Add
+  | Sending
   | Send
+  | CancelSend

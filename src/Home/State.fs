@@ -7,7 +7,9 @@ let init () : Model * Cmd<Msg> =
   { Name = ""
     IsAccepted = false
     Current = { Id = 0; Description = ""}
-    Items = [] },
+    Items = []
+    IsSending = false
+    IsSent = false },
   []
 
 let update msg model : Model * Cmd<Msg> =
@@ -24,4 +26,9 @@ let update msg model : Model * Cmd<Msg> =
     { model with
         Items = model.Items @ [ model.Current ]
         Current = { Id = model.Current.Id + 1; Description = "" } }, []
-  | Send -> model, []
+  | Sending ->
+    { model with IsSending = true }, []
+  | CancelSend ->
+    { model with IsSending = false }, []
+  | Send ->
+    { model with IsSent = true; IsSending = false }, []
