@@ -33,17 +33,22 @@ let addItem model dispatch =
   | ListState.Sent -> null
   | _ ->
     Field.div [ Field.HasAddons ] [
-      Control.div [ Control.IsExpanded ] [
+      Control.div [ ] [
         Input.text [
           Input.Value model.Current.Description
           Input.OnChange (fun ev -> !!ev.target?value |> UpdatingCurrent |> dispatch)
           Input.Placeholder "What do you want?"
+          Input.CustomClass "add-item"
           Input.Props [ Props.AutoFocus true ] ]
       ]
       Control.div [ ] [
         Button.button [
           Button.OnClick (fun _ -> dispatch Add)
-        ] [ str "Add" ]
+          Button.Color Color.IsSuccess
+        ] [
+          Text.span [] [ str "Add" ]
+          Icon.faIcon [] [ Fa.icon Fa.I.Check ]
+        ]
       ] ]
 
 let confirmButtons dispatch =
