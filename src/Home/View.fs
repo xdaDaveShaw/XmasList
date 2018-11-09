@@ -28,6 +28,31 @@ let unknownUi model dispatch =
         ] [ str "Done" ] ] ]
   ]
 
+let listItems items dispatch =
+
+  let item i =
+    Columns.columns [ Columns.IsMobile; Columns.CustomClass "gridcols" ] [
+      Column.column [ Column.CustomClass "gridcol"; Column.Width (Screen.All, Column.Is11) ] [
+        Icon.faIcon [ Icon.Size Size.IsSmall ] [
+          Fa.icon Fa.I.Circle
+        ]
+        Text.span [ CustomClass "griditem"; ] [
+          str i.Description
+        ]
+      ]
+      Column.column [ Column.CustomClass "gridcol"; Column.Width (Screen.All, Column.Is1) ] [
+        Delete.delete [ Delete.Size Size.IsSmall; Delete.CustomClass "griddel" ] [ ]
+      ]
+    ]
+
+
+  let items =
+    items
+    |> List.map item
+
+  Field.div [ ]
+    items
+
 let addItem model dispatch =
   match model.State with
   | ListState.Sent -> null
@@ -103,11 +128,11 @@ let knownUi model dispatch =
         str "Your Xmas List"
         Icon.faIcon [ ] [ Fa.icon Fa.I.Tree ]
       ] ]
-    Field.div [ ] [
-      ul [ ]
-        (model.Items
-        |> List.map (fun i -> li [] [ str i.Description])) ]
+    br []
+    listItems model.Items dispatch
+    br []
     addItem model dispatch
+    br []
     sendButtons model dispatch
   ]
 
