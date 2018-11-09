@@ -17,3 +17,4 @@ type Msg =
   | AcceptName
   | UpdatingCurrent of string
   | Add
+  | Send

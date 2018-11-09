@@ -48,7 +48,13 @@ let knownUi model dispatch =
       Control.div [ ] [
         Button.button [
           Button.OnClick (fun _ -> dispatch Add)
-        ] [ str "Add"]
+        ] [ str "Add" ]
+      ] ]
+    Field.div [ ] [
+      Control.div [ ] [
+        Button.button [
+          Button.OnClick (fun _ -> dispatch Send)
+        ] [ str "Send" ]
       ] ]
   ]
 

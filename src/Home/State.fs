@@ -24,3 +24,4 @@ let update msg model : Model * Cmd<Msg> =
     { model with
         Items = model.Items @ [ model.Current ]
         Current = { Id = model.Current.Id + 1; Description = "" } }, []
+  | Send -> model, []
