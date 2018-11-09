@@ -29,9 +29,9 @@ let unknownUi model dispatch =
   ]
 
 let addItem model dispatch =
-  if (model.IsSent) then
-    null
-  else
+  match model.State with
+  | ListState.Sent -> null
+  | _ ->
     Field.div [ Field.HasAddons ] [
       Control.div [ Control.IsExpanded ] [
         Input.text [
@@ -46,44 +46,58 @@ let addItem model dispatch =
         ] [ str "Add" ]
       ] ]
 
-let sendButtons model dispatch =
-  if model.IsSending then
-    Field.div [ Field.IsGrouped ] [
-      Control.div [ ] [
-        Button.button [
-          Button.Color IsSuccess
-          Button.OnClick (fun _ -> dispatch Send)
-        ] [
-          Icon.faIcon [] [ Fa.icon Fa.I.Check ]
-          Text.span [] [ str "Confirm" ]
-        ]
+let confirmButtons dispatch =
+  Field.div [ Field.IsGrouped ] [
+    Control.div [ ] [
+      Button.button [
+        Button.Color IsSuccess
+        Button.OnClick (fun _ -> dispatch Send)
+      ] [
+        Icon.faIcon [] [ Fa.icon Fa.I.Check ]
+        Text.span [] [ str "Confirm" ]
       ]
-      Control.div [ ] [
-        Button.button [
-          Button.Color IsDanger
-          Button.OnClick (fun _ -> dispatch CancelSend)
-        ] [
-          Icon.faIcon [] [ Fa.icon Fa.I.Times ]
-          Text.span [] [ str "Cancel" ]
-        ]
-      ] ]
-  else
-    let text =
-      if model.IsSent then "Sent" else "Send"
+    ]
+    Control.div [ ] [
+      Button.button [
+        Button.Color IsDanger
+        Button.OnClick (fun _ -> dispatch CancelSend)
+      ] [
+        Icon.faIcon [ ] [ Fa.icon Fa.I.Times ]
+        Text.span [ ] [ str "Cancel" ]
+      ]
+    ] ]
 
-    Field.div [ ] [
-      Control.div [ ] [
-        Button.button [
-          Button.OnClick (fun _ -> dispatch Sending)
-          Button.Disabled model.IsSent
-        ] [ str text ]
-      ] ]
+let sendButton state dispatch =
+  let isSent =
+    state = ListState.Sent
+
+  let text =
+    if isSent then "Sent" else "Send"
+
+  Field.div [ ] [
+    Control.div [ ] [
+      Button.button [
+        Button.OnClick (fun _ -> dispatch Sending)
+        Button.Disabled isSent
+      ] [ str text ]
+    ] ]
+
+let sendButtons model dispatch =
+  match model.State with
+  | ListState.Sending ->  confirmButtons dispatch
+  | ListState.Unsent
+  | ListState.Sent -> sendButton model.State dispatch
+  | ListState.Unknown -> null
 
 let knownUi model dispatch =
   [
     Field.div [ ] [
       Label.label [ Label.Size Size.IsLarge ] [ str ("Welcome " + model.Name) ]
-      Label.label [ ] [ str "Your Xmas List" ] ]
+      Label.label [ ] [
+        Icon.faIcon [ ] [ Fa.icon Fa.I.Tree ]
+        str "Your Xmas List"
+        Icon.faIcon [ ] [ Fa.icon Fa.I.Tree ]
+      ] ]
     Field.div [ ] [
       ul [ ]
         (model.Items
@@ -95,9 +109,9 @@ let knownUi model dispatch =
 let root model dispatch =
 
   let ui =
-    match model.IsAccepted with
-    | false -> unknownUi
-    | true -> knownUi
+    match model.State with
+    | Unknown -> unknownUi
+    | _ -> knownUi
   let ui = ui model dispatch
 
   div [ ] [

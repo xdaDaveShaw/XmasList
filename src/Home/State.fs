@@ -5,11 +5,9 @@ open Types
 
 let init () : Model * Cmd<Msg> =
   { Name = ""
-    IsAccepted = false
     Current = { Id = 0; Description = ""}
     Items = []
-    IsSending = false
-    IsSent = false },
+    State = Unknown },
   []
 
 let update msg model : Model * Cmd<Msg> =
@@ -18,7 +16,7 @@ let update msg model : Model * Cmd<Msg> =
     { model with Name = str }, []
   | AcceptName ->
     { model with
-        IsAccepted = true
+        State = Unsent
         Items = [ ] }, []
   | UpdatingCurrent text ->
     { model with Current = { model.Current with Description = text } }, []
@@ -27,8 +25,8 @@ let update msg model : Model * Cmd<Msg> =
         Items = model.Items @ [ model.Current ]
         Current = { Id = model.Current.Id + 1; Description = "" } }, []
   | Sending ->
-    { model with IsSending = true }, []
+    { model with State = ListState.Sending }, []
   | CancelSend ->
-    { model with IsSending = false }, []
+    { model with State = Unsent }, []
   | Send ->
-    { model with IsSent = true; IsSending = false }, []
+    { model with State = Sent }, []

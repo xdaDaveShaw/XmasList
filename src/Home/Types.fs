@@ -5,13 +5,17 @@ type Item = {
   Description: string
 }
 
+type ListState =
+  | Unknown
+  | Unsent
+  | Sending
+  | Sent
+
 type Model = {
   Name: string
-  IsAccepted: bool
   Current: Item
   Items: Item list
-  IsSending: bool
-  IsSent: bool
+  State: ListState
 }
 
 type Msg =
