@@ -22,10 +22,10 @@ let unknownUi model dispatch =
     ]
     Field.div [ Field.IsGrouped ]
       [ Control.div [ ] [
-        Button.Input.submit
-          [ Button.Color IsPrimary
-            Button.OnClick (fun _ -> dispatch AcceptName)
-            Button.Props [ Value "Done" ] ] ] ]
+        Button.button [
+          Button.Color IsPrimary
+          Button.OnClick (fun _ -> dispatch AcceptName)
+        ] [ str "Done" ] ] ]
   ]
 
 let knownUi model dispatch =
