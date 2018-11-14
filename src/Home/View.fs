@@ -8,13 +8,25 @@ open Fulma
 open Fulma.FontAwesome
 open Types
 
+let onEnter dispatch msg =
+  OnKeyDown (fun (ev: Fable.Import.React.KeyboardEvent) ->
+      match ev with
+      | _ when ev.keyCode = 13. ->
+          ev.preventDefault()
+          dispatch msg
+
+      | _ -> ())
+
 let unknownUi model dispatch =
   [
     Field.div [ ] [
       Control.div [ ] [
         Input.text [
           Input.Placeholder "Enter your name"
-          Input.Props [ Props.AutoFocus true ]
+          Input.Props [
+            Props.AutoFocus true
+            onEnter dispatch AcceptedName
+          ]
           Input.OnChange (fun ev -> !!ev.target?value |> UpdatingName |> dispatch)
           Input.DefaultValue model.Name
         ]
@@ -64,7 +76,10 @@ let addItem model dispatch =
           Input.OnChange (fun ev -> !!ev.target?value |> UpdatingCurrent |> dispatch)
           Input.Placeholder "What do you want?"
           Input.CustomClass "add-item"
-          Input.Props [ Props.AutoFocus true ] ]
+          Input.Props [
+            Props.AutoFocus true
+            onEnter dispatch AddCurrentToList
+          ] ]
       ]
       Control.div [ ] [
         Button.button [
@@ -144,6 +159,4 @@ let root model dispatch =
     | _ -> knownUi
   let ui = ui model dispatch
 
-  div [ ] [
-    form [ ] ui
-  ]
+  div [ ] ui
