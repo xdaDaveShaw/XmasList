@@ -24,7 +24,7 @@ let unknownUi model dispatch =
       [ Control.div [ ] [
         Button.button [
           Button.Color IsPrimary
-          Button.OnClick (fun _ -> dispatch AcceptName)
+          Button.OnClick (fun _ -> dispatch AcceptedName)
         ] [ str "Done" ] ] ]
   ]
 
@@ -68,7 +68,7 @@ let addItem model dispatch =
       ]
       Control.div [ ] [
         Button.button [
-          Button.OnClick (fun _ -> dispatch Add)
+          Button.OnClick (fun _ -> dispatch AddCurrentToList)
           Button.Color Color.IsSuccess
         ] [
           Text.span [] [ str "Add" ]
@@ -81,7 +81,7 @@ let confirmButtons dispatch =
     Control.div [ ] [
       Button.button [
         Button.Color IsSuccess
-        Button.OnClick (fun _ -> dispatch Send)
+        Button.OnClick (fun _ -> dispatch Sent)
       ] [
         Icon.faIcon [] [ Fa.icon Fa.I.Check ]
         Text.span [] [ str "Confirm" ]
@@ -90,7 +90,7 @@ let confirmButtons dispatch =
     Control.div [ ] [
       Button.button [
         Button.Color IsDanger
-        Button.OnClick (fun _ -> dispatch CancelSend)
+        Button.OnClick (fun _ -> dispatch CancelledSend)
       ] [
         Icon.faIcon [ ] [ Fa.icon Fa.I.Times ]
         Text.span [ ] [ str "Cancel" ]

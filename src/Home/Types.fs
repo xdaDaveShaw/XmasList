@@ -20,9 +20,9 @@ type Model = {
 
 type Msg =
   | UpdatingName of string
-  | AcceptName
+  | AcceptedName
   | UpdatingCurrent of string
-  | Add
+  | AddCurrentToList
   | Sending
-  | Send
-  | CancelSend
+  | Sent
+  | CancelledSend
