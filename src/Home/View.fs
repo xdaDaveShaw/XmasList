@@ -57,7 +57,6 @@ let listItems items dispatch =
       ]
     ]
 
-
   let items =
     items
     |> List.map item

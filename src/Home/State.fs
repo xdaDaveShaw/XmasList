@@ -10,6 +10,13 @@ let init () : Model * Cmd<Msg> =
     State = Unknown },
   []
 
+let canAdd current items =
+  not (System.String.IsNullOrEmpty(current.Description))
+  &&
+  items
+  |> List.tryFind (fun i -> i.Description = current.Description)
+  |> Option.isNone
+
 let update msg model : Model * Cmd<Msg> =
   match msg with
   | UpdatingName str ->
@@ -24,7 +31,7 @@ let update msg model : Model * Cmd<Msg> =
     { model with Current = { model.Current with Description = text } }, []
 
   | AddCurrentToList ->
-    if (model.Current.Description.Length > 0) then
+    if canAdd model.Current model.Items then
       { model with
           Items = model.Items @ [ model.Current ]
           Current = { Id = model.Current.Id + 1; Description = "" } }, []
