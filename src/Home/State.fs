@@ -4,45 +4,34 @@ open Elmish
 open Types
 
 let init () : Model * Cmd<Msg> =
-  { Name = ""
-    Current = { Id = 0; Description = ""}
-    Items = []
-    State = Unknown },
+  { ChildrensList = []
+    CurrentEntry = Child ""
+    SantasList = [] },
   []
 
-let canAdd current items =
-  not (System.String.IsNullOrEmpty(current.Description))
-  &&
-  items
-  |> List.tryFind (fun i -> i.Description = current.Description)
-  |> Option.isNone
+let updatingCurrent model entry =
+  { model with CurrentEntry = entry }
 
-let update msg model : Model * Cmd<Msg> =
+let addedChild model =
+  match model.CurrentEntry with
+  | CurrentEntry.Child c -> Domain.addChild model { Name = c; }
+  | CurrentEntry.Item i -> model
+
+let addedItem model child =
+  match model.CurrentEntry with
+  | CurrentEntry.Child _ -> model
+  | CurrentEntry.Item i -> Domain.addItem model child i
+
+let reviewedChild model child naughtyOrNice =
+  Domain.reviewChild model child naughtyOrNice
+
+let update2 msg model : Model * Cmd<Msg> =
   match msg with
-  | UpdatingName str ->
-    { model with Name = str }, []
-
-  | AcceptedName ->
-    { model with
-        State = Unsent
-        Items = [ ] }, []
-
-  | UpdatingCurrent text ->
-    { model with Current = { model.Current with Description = text } }, []
-
-  | AddCurrentToList ->
-    if canAdd model.Current model.Items then
-      { model with
-          Items = model.Items @ [ model.Current ]
-          Current = { Id = model.Current.Id + 1; Description = "" } }, []
-    else
-      model, []
-
-  | Sending ->
-    { model with State = ListState.Sending }, []
-
-  | CancelledSend ->
-    { model with State = ListState.Unsent }, []
-
-  | Sent ->
-    { model with State = ListState.Sent }, []
+  | UpdatingCurrent entry ->
+    updatingCurrent model entry, []
+  | AddedChild ->
+    addedChild model, []
+  | AddedItem child ->
+    addedItem model child, []
+  | ReviewedChild (child, naughtyOrNice) ->
+    reviewedChild model child naughtyOrNice, []
