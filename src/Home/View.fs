@@ -74,6 +74,21 @@ let childListItem dispatch currentEntry child =
     content
   ]
 
+let renderSantasList list =
+
+  let renderItem item =
+    let text = sprintf "%s * %d" item.ItemName item.Quantity
+    li [ ] [ str text ]
+
+  let items =
+    list
+    |> List.map renderItem
+
+  Content.content [ ] [
+    Heading.h1 [ ] [ str "Santa's List" ]
+    ul [ ] items
+  ]
+
 let root model dispatch =
 
   let childListItem = childListItem dispatch model.CurrentEntry
@@ -82,6 +97,7 @@ let root model dispatch =
     match model.CurrentEntry with
     | Child c -> [ Input.Value c ]
     | _ -> []
+
 
   div [ ] [
     h1 [ ] [ str "List of Children" ]
@@ -102,9 +118,5 @@ let root model dispatch =
       Button.OnClick (fun _ -> dispatch AddedChild )
     ] [ str "add child" ]
 
-    h1 [ ] [ str "Santa's List" ]
-    ul [ ] (
-      model.SantasList
-      |> List.map (fun i -> li [ ] [ str (sprintf "%s * %d" i.ItemName i.Quantity) ])
-    )
+    renderSantasList model.SantasList
   ]
