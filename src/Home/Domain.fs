@@ -11,39 +11,44 @@ type private AddItemToChild = NiceChild -> Item -> NiceChild
 type private UpdateChild = Child list -> Child -> Child list
 type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
 
-let private canAdd newItem items =
+let private canAddItem newItem items =
   not (System.String.IsNullOrEmpty(newItem.Description))
   &&
   items
   |> List.tryFind (fun i -> i.Description = newItem.Description)
   |> Option.isNone
 
+let private canAddChild (newChild : UnknownChild) (children : Child list) =
+  not (System.String.IsNullOrEmpty(newChild.Name))
+  &&
+  children
+  |> List.tryFind (fun i -> getChildName i = newChild.Name)
+  |> Option.isNone
+
 let addChild : AddChild =
   fun model child ->
-    let newChildren = model.ChildrensList @ [ Unknown child ]
-    { model with ChildrensList = newChildren }
+    if canAddChild child model.ChildrensList then
+      { model with ChildrensList = model.ChildrensList @ [ Unknown child ] }
+    else
+      model
 
 let private addItemToChild : AddItemToChild =
   fun child item ->
-    if canAdd item child.Items then
+    if canAddItem item child.Items then
       { child with Items = child.Items @ [ item ] }
     else
       child
 
 let private updateChild : UpdateChild =
-  fun xs child ->
+  fun xs newChild ->
 
-    let name =
-      match child with
-      | Nice c -> c.Name
-      | Naughty c -> c.Name
-      | Unknown c -> c.Name
+    let name = getChildName newChild
 
     let update c =
       match c with
-      | Nice c -> if c.Name = name then child else Nice c
-      | Naughty c -> if c.Name = name then child else Naughty c
-      | x -> x
+      | Nice c -> if c.Name = name then newChild else Nice c
+      | Naughty c -> if c.Name = name then newChild else Naughty c
+      | Unknown c -> if c.Name = name then newChild else Unknown c
 
     xs
     |> List.map update

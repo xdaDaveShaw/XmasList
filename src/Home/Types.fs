@@ -1,7 +1,6 @@
 module Home.Types
 
 type Item = {
-  Id: int
   Description: string
 }
 
@@ -22,10 +21,16 @@ type NaughtyChild = {
   Name: string
 }
 
+//TODO: Name + NaughtyOrNice
 type Child =
   | Unknown of UnknownChild
   | Nice of NiceChild
   | Naughty of NaughtyChild
+
+let getChildName = function
+  | Nice c -> c.Name
+  | Naughty c -> c.Name
+  | Unknown c -> c.Name
 
 type SantasItem = {
   Name: string
@@ -34,7 +39,7 @@ type SantasItem = {
 
 type CurrentEntry =
   | Child of string
-  | Item of Item
+  | Item of NiceChild * string
 
 type Model = {
   CurrentEntry: CurrentEntry
@@ -45,5 +50,5 @@ type Model = {
 type Msg =
   | UpdatingCurrent of CurrentEntry
   | AddedChild
-  | AddedItem of NiceChild
+  | AddedItem
   | ReviewedChild of UnknownChild * NaughtyOrNice
