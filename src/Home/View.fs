@@ -52,7 +52,7 @@ let niceChild dispatch currentEntry child items =
     ul [ ] (items |> List.map itemListItem)
     content
   ]
-let childListItem dispatch currentEntry child =
+let renderChildListItem dispatch currentEntry child =
 
   let content =
     match child.NaughtyOrNice with
@@ -74,6 +74,45 @@ let childListItem dispatch currentEntry child =
     content
   ]
 
+let renderChildList dispatch model =
+
+  let childList =
+    model.ChildrensList
+    |> List.map (fun c -> renderChildListItem dispatch model.CurrentEntry c)
+
+  Content.content [ ] [
+    Heading.h1 [ ] [ str "List of Children" ]
+    ul [ ] childList
+  ]
+
+let renderAddItem dispatch currentEntry =
+
+  let value =
+    match currentEntry with
+    | Child c -> [ Input.Value c ]
+    | _ -> []
+
+  let updatingCurrent s =
+    Child s |> UpdatingCurrent |> dispatch
+
+  let textProps =
+    [
+      Input.OnChange (fun ev -> updatingCurrent !!ev.target?value)
+      Input.Props [
+        Props.AutoFocus true
+        onEnter dispatch AddedChild
+        Props.OnFocus (fun ev -> updatingCurrent !!ev.target?value)
+      ]
+    ] @ value
+
+  Content.content [ ] [
+    Heading.h1 [ ] [ str "Add children" ]
+    Input.text textProps
+    Button.button [
+      Button.OnClick (fun _ -> dispatch AddedChild )
+    ] [ str "add child" ]
+  ]
+
 let renderSantasList list =
 
   let renderItem item =
@@ -91,32 +130,8 @@ let renderSantasList list =
 
 let root model dispatch =
 
-  let childListItem = childListItem dispatch model.CurrentEntry
-
-  let value =
-    match model.CurrentEntry with
-    | Child c -> [ Input.Value c ]
-    | _ -> []
-
-
   div [ ] [
-    h1 [ ] [ str "List of Children" ]
-    ul [ ]
-      (model.ChildrensList
-      |> List.map childListItem)
-
-    h1 [ ] [ str "Add more Children" ]
-    Input.text ([
-      Input.OnChange (fun ev -> !!ev.target?value |> CurrentEntry.Child |> UpdatingCurrent |> dispatch)
-      Input.Props [
-        Props.AutoFocus true
-        onEnter dispatch AddedChild
-        Props.OnFocus (fun ev -> !!ev.target?value |> CurrentEntry.Child |> UpdatingCurrent |> dispatch)
-      ]
-    ] @ value)
-    Button.button [
-      Button.OnClick (fun _ -> dispatch AddedChild )
-    ] [ str "add child" ]
-
+    renderChildList dispatch model
+    renderAddItem dispatch model.CurrentEntry
     renderSantasList model.SantasList
   ]
