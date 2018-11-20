@@ -17,11 +17,6 @@ let onEnter dispatch msg =
 
       | _ -> ())
 
-let onFocus dispatch msg =
-  OnFocus (fun (ev: Fable.Import.React.FocusEvent) ->
-      ev.preventDefault()
-      dispatch msg !!ev.target?value)
-
 let itemListItem item =
   li [] [ str item.Description ]
 
