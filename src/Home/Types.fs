@@ -5,41 +5,23 @@ type Item = {
 }
 
 type NaughtyOrNice =
-  | Nice
+  | Undecided
+  | Nice of Item list
   | Naughty
 
-type UnknownChild = {
+type Child = {
   Name: string
+  NaughtyOrNice: NaughtyOrNice
 }
-
-type NiceChild = {
-  Name: string
-  Items: Item list
-}
-
-type NaughtyChild = {
-  Name: string
-}
-
-//TODO: Name + NaughtyOrNice
-type Child =
-  | Unknown of UnknownChild
-  | Nice of NiceChild
-  | Naughty of NaughtyChild
-
-let getChildName = function
-  | Nice c -> c.Name
-  | Naughty c -> c.Name
-  | Unknown c -> c.Name
 
 type SantasItem = {
-  Name: string
+  ItemName: string
   Quantity: int
 }
 
 type CurrentEntry =
   | Child of string
-  | Item of NiceChild * string
+  | Item of Child * string
 
 type Model = {
   CurrentEntry: CurrentEntry
@@ -51,4 +33,4 @@ type Msg =
   | UpdatingCurrent of CurrentEntry
   | AddedChild
   | AddedItem
-  | ReviewedChild of UnknownChild * NaughtyOrNice
+  | ReviewedChild of Child * NaughtyOrNice

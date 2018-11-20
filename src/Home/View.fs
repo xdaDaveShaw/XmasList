@@ -46,7 +46,7 @@ let addItems dispatch child item =
     ] [ str "add item" ]
   ]
 
-let niceChild dispatch currentEntry (child : NiceChild) =
+let niceChild dispatch currentEntry child items =
 
   let content =
     match currentEntry with
@@ -54,30 +54,28 @@ let niceChild dispatch currentEntry (child : NiceChild) =
     | _ -> startAddItem dispatch child
 
   div [ ] [
-    ul [ ] (child.Items |> List.map itemListItem)
+    ul [ ] (items |> List.map itemListItem)
     content
   ]
 let childListItem dispatch currentEntry child =
 
-  let name = getChildName child
-
   let content =
-    match child with
-    | Nice c ->
-      niceChild dispatch currentEntry c
-    | Unknown c ->
+    match child.NaughtyOrNice with
+    | Nice items ->
+      niceChild dispatch currentEntry child items
+    | Undecided ->
       div [ ] [
         Button.button [
-          Button.OnClick (fun _ -> dispatch (ReviewedChild (c, NaughtyOrNice.Nice)))
+          Button.OnClick (fun _ -> dispatch (ReviewedChild (child, Nice [])))
         ] [ str "nice" ]
         Button.button [
-          Button.OnClick (fun _ -> dispatch (ReviewedChild (c, NaughtyOrNice.Naughty)))
+          Button.OnClick (fun _ -> dispatch (ReviewedChild (child, Naughty)))
         ] [ str "naughty" ]
       ]
     | Naughty _ -> div [ ] [ str "NAUGTY" ]
 
   li [ ] [
-    str name
+    str child.Name
     content
   ]
 
@@ -112,6 +110,6 @@ let root model dispatch =
     h1 [ ] [ str "Santa's List" ]
     ul [ ] (
       model.SantasList
-      |> List.map (fun i -> li [ ] [ str (sprintf "%s * %d" i.Name i.Quantity) ])
+      |> List.map (fun i -> li [ ] [ str (sprintf "%s * %d" i.ItemName i.Quantity) ])
     )
   ]

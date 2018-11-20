@@ -23,7 +23,7 @@ let clearCurrent model =
 let addedChild model =
   let newModel =
     match model.CurrentEntry with
-    | CurrentEntry.Child name -> Domain.addChild model { Name = name; }
+    | CurrentEntry.Child name -> Domain.addChild model { Name = name; NaughtyOrNice = Undecided }
     | _ -> model
   clearCurrent newModel
 
