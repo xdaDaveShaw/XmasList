@@ -7,7 +7,7 @@ type AddItem = Model -> Child -> Item -> Model
 type ReviewChild = Model -> Child -> NaughtyOrNice -> Model
 
 // Private functions for aggreates
-type private AddItemToChild = Child -> Item -> Child
+type private AddItemToChild = Child -> Item -> Child * bool
 type private UpdateChild = Child list -> Child -> Child list
 type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
 
@@ -35,12 +35,10 @@ let addChild : AddChild =
 let private addItemToChild : AddItemToChild =
   fun child item ->
     match child.NaughtyOrNice with
-    | Nice items ->
-      if canAddItem item items then
-        { child with NaughtyOrNice = Nice (items @ [ item ]) }
-      else
-        child
-    | _ -> child
+    | Nice items when canAddItem item items ->
+      { child with NaughtyOrNice = Nice (items @ [ item ]) }, true
+    | _ ->
+      child, false
 
 let private updateChild : UpdateChild =
   fun xs newChild ->
@@ -71,9 +69,17 @@ let private addItemToSantasList : UpdateSantasList =
 
 let addItem : AddItem =
   fun model child item ->
-    let newChild = addItemToChild child item
-    let newChildList = updateChild model.ChildrensList newChild
-    let newSantaList = addItemToSantasList model.SantasList item
+
+    let newChild, success = addItemToChild child item
+
+    let newChildList, newSantaList =
+      if success then
+        let ncl = updateChild model.ChildrensList newChild
+        let nsl = addItemToSantasList model.SantasList item
+
+        ncl, nsl
+      else
+        model.ChildrensList, model.SantasList
 
     { model with
         ChildrensList = newChildList
