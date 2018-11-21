@@ -20,33 +20,47 @@ let onEnter dispatch msg =
 let itemListItem item =
   li [] [ str item.Description ]
 
-let startAddItem dispatch child =
+let createStartAddButton dispatch child hasItems =
+
+  let text =
+    if hasItems then "add more" else "start adding"
+
+  let msg =
+    Item (child, "") |> UpdatingCurrent
+
   Button.button [
-    Button.OnClick (fun _ -> dispatch (UpdatingCurrent (Item (child, ""))))
-  ] [ str "start adding items" ]
+    Button.OnClick (fun _ -> dispatch msg)
+  ] [ str text ]
 
 let addItems dispatch child item =
-  div [ ] [
+
+  let updateCurrent s =
+    Item (child, s) |> UpdatingCurrent |> dispatch
+
+  Field.div [ Field.HasAddons ] [
     Input.text [
-      Input.OnChange (fun ev -> (child, !!ev.target?value) |> CurrentEntry.Item |> UpdatingCurrent |> dispatch)
+      Input.OnChange (fun ev -> updateCurrent !!ev.target?value)
       Input.Props [
         Props.AutoFocus true
         onEnter dispatch AddedItem
-        Props.OnFocus (fun ev -> (child, !!ev.target?value) |> CurrentEntry.Item |> UpdatingCurrent |> dispatch)
+        Props.OnFocus (fun ev -> updateCurrent !!ev.target?value)
       ]
       Input.Value item
     ]
     Button.button [
+      Button.Color Color.IsSuccess
       Button.OnClick (fun _ -> dispatch AddedItem)
     ] [ str "add item" ]
   ]
 
 let renderNiceChild dispatch currentEntry child items =
 
+  let hasItems = items |> List.isEmpty |> not
+
   let content =
     match currentEntry with
     | Item (c, item) when c.Name = child.Name -> addItems dispatch child item
-    | _ -> startAddItem dispatch child
+    | _ -> createStartAddButton dispatch child hasItems
 
   div [ ] [
     str child.Name
@@ -104,16 +118,17 @@ let renderChildList dispatch model =
     |> List.map (fun c -> renderChildListItem dispatch model.CurrentEntry c)
 
   Content.content [ ] [
-    Heading.h1 [ ] [ str "List of Children" ]
-    ul [ ] childList
+    if not (List.isEmpty model.ChildrensList) then
+      yield Heading.h1 [ ] [ str "List of Children" ]
+    yield ul [ ] childList
   ]
 
 let renderAddChild dispatch currentEntry =
 
-  let value =
+  let value, autoFocus =
     match currentEntry with
-    | Child c -> [ Input.Value c ]
-    | _ -> []
+    | Child c -> [ Input.Value c ], true
+    | _ -> [], false
 
   let updatingCurrent s =
     Child s |> UpdatingCurrent |> dispatch
@@ -122,7 +137,7 @@ let renderAddChild dispatch currentEntry =
     [
       Input.OnChange (fun ev -> updatingCurrent !!ev.target?value)
       Input.Props [
-        Props.AutoFocus true
+        Props.AutoFocus autoFocus
         onEnter dispatch AddedChild
         Props.OnFocus (fun ev -> updatingCurrent !!ev.target?value)
       ]

@@ -12,10 +12,13 @@ let init () : Model * Cmd<Msg> =
 let updatingCurrent model entry =
   { model with CurrentEntry = entry }
 
-let clearCurrent model =
+let clearCurrentChild model =
+  { model with CurrentEntry = Child "" }
+
+let clearCurrentItem model =
   let newCurrent =
     match model.CurrentEntry with
-    | Child _ -> Child ""
+    | Child c -> Child c
     | Item (c, _) -> Item (c, "")
 
   { model with CurrentEntry = newCurrent }
@@ -25,17 +28,18 @@ let addedChild model =
     match model.CurrentEntry with
     | CurrentEntry.Child name -> Domain.addChild model { Name = name; NaughtyOrNice = Undecided }
     | _ -> model
-  clearCurrent newModel
+  clearCurrentChild newModel
 
 let addedItem model =
   let newModel =
     match model.CurrentEntry with
     | CurrentEntry.Item (child, item) -> Domain.addItem model child { Description = item }
     | _ -> model
-  clearCurrent newModel
+  clearCurrentItem newModel
 
 let reviewedChild model child naughtyOrNice =
   Domain.reviewChild model child naughtyOrNice
+  |> clearCurrentChild
 
 let update msg model : Model * Cmd<Msg> =
   match msg with
