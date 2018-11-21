@@ -20,6 +20,7 @@ type SantasItem = {
 }
 
 type CurrentEntry =
+  | Nothing
   | Child of string
   | Item of Child * string
 

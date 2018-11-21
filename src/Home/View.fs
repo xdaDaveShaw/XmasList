@@ -29,7 +29,7 @@ let createStartAddButton dispatch child =
     Button.OnClick (fun _ -> dispatch msg)
   ] [ str "+" ]
 
-let addItems dispatch child item =
+let createAddNewItemControl dispatch child item =
 
   let updateCurrent s =
     Item (child, s) |> UpdatingCurrent |> dispatch
@@ -41,6 +41,7 @@ let addItems dispatch child item =
         Props.AutoFocus true
         onEnter dispatch AddedItem
         Props.OnFocus (fun ev -> updateCurrent !!ev.target?value)
+        Props.OnBlur (fun _ -> dispatch (UpdatingCurrent Nothing))
       ]
       Input.Value item
     ]
@@ -58,7 +59,7 @@ let renderNiceChild dispatch currentEntry child items =
 
   let addControl =
     match currentEntry with
-    | Item (c, item) when c.Name = child.Name -> addItems dispatch child item
+    | Item (c, item) when c.Name = child.Name -> createAddNewItemControl dispatch child item
     | _ -> li [ ] [ createStartAddButton dispatch child ]
 
   tr [ ] [

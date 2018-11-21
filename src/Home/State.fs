@@ -5,7 +5,7 @@ open Types
 
 let init () : Model * Cmd<Msg> =
   { ChildrensList = []
-    CurrentEntry = Child ""
+    CurrentEntry = Nothing
     SantasList = [] },
   []
 
@@ -17,8 +17,8 @@ let clearCurrentChild model =
 
 let clearCurrentItem model =
   match model.CurrentEntry with
-  | Child _ -> model
   | Item (c, _) -> { model with CurrentEntry = Item (c, "") }
+  | _ -> model
 
 let addedChild model =
   let newModel =
