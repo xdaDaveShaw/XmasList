@@ -41,7 +41,7 @@ let addItems dispatch child item =
     ] [ str "add item" ]
   ]
 
-let niceChild dispatch currentEntry child items =
+let renderNiceChild dispatch currentEntry child items =
 
   let content =
     match currentEntry with
@@ -49,28 +49,51 @@ let niceChild dispatch currentEntry child items =
     | _ -> startAddItem dispatch child
 
   div [ ] [
+    str child.Name
     ul [ ] (items |> List.map itemListItem)
     content
   ]
+
+let renderNaughtyChild name =
+  Text.span [ ] [
+    str (name + " has been naughty.")
+  ]
+
+let renderUndecidedChild dispatch child =
+
+  let createButton non =
+    let text, col =
+      match non with
+      | Nice _ -> "nice", Color.IsSuccess
+      | Naughty -> "naughty", Color.IsDanger
+      | Undecided -> "", Color.IsBlack
+
+    Control.p [ ] [
+      Button.button [
+        Button.Color col
+        Button.Size Size.IsSmall
+        Button.OnClick (fun _ -> dispatch (ReviewedChild (child, non)))
+      ] [ str (text) ]
+    ]
+
+  Field.div [ Field.IsGrouped ] [
+    Control.div [ ] [ str child.Name ]
+    createButton (Nice [])
+    createButton Naughty
+  ]
+
 let renderChildListItem dispatch currentEntry child =
 
   let content =
     match child.NaughtyOrNice with
     | Nice items ->
-      niceChild dispatch currentEntry child items
+      renderNiceChild dispatch currentEntry child items
     | Undecided ->
-      div [ ] [
-        Button.button [
-          Button.OnClick (fun _ -> dispatch (ReviewedChild (child, Nice [])))
-        ] [ str "nice" ]
-        Button.button [
-          Button.OnClick (fun _ -> dispatch (ReviewedChild (child, Naughty)))
-        ] [ str "naughty" ]
-      ]
-    | Naughty _ -> div [ ] [ str "NAUGTY" ]
+      renderUndecidedChild dispatch child
+    | Naughty ->
+      renderNaughtyChild child.Name
 
   li [ ] [
-    str child.Name
     content
   ]
 
@@ -85,7 +108,7 @@ let renderChildList dispatch model =
     ul [ ] childList
   ]
 
-let renderAddItem dispatch currentEntry =
+let renderAddChild dispatch currentEntry =
 
   let value =
     match currentEntry with
@@ -107,10 +130,13 @@ let renderAddItem dispatch currentEntry =
 
   Content.content [ ] [
     Heading.h1 [ ] [ str "Add children" ]
-    Input.text textProps
-    Button.button [
-      Button.OnClick (fun _ -> dispatch AddedChild )
-    ] [ str "add child" ]
+    Field.div [ Field.HasAddons ] [
+      Input.text textProps
+      Button.button [
+        Button.Color Color.IsSuccess
+        Button.OnClick (fun _ -> dispatch AddedChild )
+      ] [ str "add" ]
+    ]
   ]
 
 let renderSantasList list =
@@ -132,6 +158,6 @@ let root model dispatch =
 
   div [ ] [
     renderChildList dispatch model
-    renderAddItem dispatch model.CurrentEntry
+    renderAddChild dispatch model.CurrentEntry
     renderSantasList model.SantasList
   ]
