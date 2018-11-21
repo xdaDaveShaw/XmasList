@@ -20,18 +20,14 @@ let onEnter dispatch msg =
 let itemListItem item =
   li [] [ str item.Description ]
 
-let createStartAddButton dispatch child hasItems =
-
-  let text =
-    if hasItems then " + " else "start adding"
-
+let createStartAddButton dispatch child =
   let msg =
     Item (child, "") |> UpdatingCurrent
 
   Button.button [
     Button.Size Size.IsSmall
     Button.OnClick (fun _ -> dispatch msg)
-  ] [ str text ]
+  ] [ str "+" ]
 
 let addItems dispatch child item =
 
@@ -56,18 +52,19 @@ let addItems dispatch child item =
 
 let renderNiceChild dispatch currentEntry child items =
 
-  let hasItems = items |> List.isEmpty |> not
+  let itemList =
+    items
+    |> List.map itemListItem
 
-  let content =
+  let addControl =
     match currentEntry with
     | Item (c, item) when c.Name = child.Name -> addItems dispatch child item
-    | _ -> createStartAddButton dispatch child hasItems
+    | _ -> li [ ] [ createStartAddButton dispatch child ]
 
   tr [ ] [
     td [ ColSpan 3 ] [
       str child.Name
-      ul [ ] (items |> List.map itemListItem)
-      content
+      ul [ ] (itemList @ [ addControl ])
     ]
   ]
 
