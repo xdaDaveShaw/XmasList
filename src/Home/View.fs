@@ -23,12 +23,13 @@ let itemListItem item =
 let createStartAddButton dispatch child hasItems =
 
   let text =
-    if hasItems then "add more" else "start adding"
+    if hasItems then " + " else "start adding"
 
   let msg =
     Item (child, "") |> UpdatingCurrent
 
   Button.button [
+    Button.Size Size.IsSmall
     Button.OnClick (fun _ -> dispatch msg)
   ] [ str text ]
 
@@ -62,15 +63,20 @@ let renderNiceChild dispatch currentEntry child items =
     | Item (c, item) when c.Name = child.Name -> addItems dispatch child item
     | _ -> createStartAddButton dispatch child hasItems
 
-  div [ ] [
-    str child.Name
-    ul [ ] (items |> List.map itemListItem)
-    content
+  tr [ ] [
+    td [ ColSpan 3 ] [
+      str child.Name
+      ul [ ] (items |> List.map itemListItem)
+      content
+    ]
   ]
 
 let renderNaughtyChild name =
-  Text.span [ ] [
-    str (name + " has been naughty.")
+  tr [
+  ] [
+    td [
+      ColSpan 3
+    ] [ str (name + " has been naughty.") ]
   ]
 
 let renderUndecidedChild dispatch child =
@@ -90,10 +96,10 @@ let renderUndecidedChild dispatch child =
       ] [ str (text) ]
     ]
 
-  Field.div [ Field.IsGrouped ] [
-    Control.div [ ] [ str child.Name ]
-    createButton (Nice [])
-    createButton Naughty
+  tr [ ] [
+    td [ ] [ str child.Name ]
+    td [ ] [ createButton (Nice []) ]
+    td [ ] [ createButton Naughty ]
   ]
 
 let renderChildListItem dispatch currentEntry child =
@@ -107,9 +113,7 @@ let renderChildListItem dispatch currentEntry child =
     | Naughty ->
       renderNaughtyChild child.Name
 
-  li [ ] [
-    content
-  ]
+  content
 
 let renderChildList dispatch model =
 
@@ -120,7 +124,10 @@ let renderChildList dispatch model =
   Content.content [ ] [
     if not (List.isEmpty model.ChildrensList) then
       yield Heading.h1 [ ] [ str "List of Children" ]
-    yield ul [ ] childList
+    yield
+      Table.table [
+        Table.IsFullWidth
+      ] childList
   ]
 
 let renderAddChild dispatch currentEntry =
