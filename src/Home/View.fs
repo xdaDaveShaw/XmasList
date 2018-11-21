@@ -97,7 +97,7 @@ let renderUndecidedChild dispatch child =
     ]
 
   tr [ ] [
-    td [ ] [ str child.Name ]
+    td [ Props.HTMLAttr.Width "100%" ] [ str child.Name ]
     td [ ] [ createButton (Nice []) ]
     td [ ] [ createButton Naughty ]
   ]
