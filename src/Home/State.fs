@@ -16,12 +16,9 @@ let clearCurrentChild model =
   { model with CurrentEntry = Child "" }
 
 let clearCurrentItem model =
-  let newCurrent =
-    match model.CurrentEntry with
-    | Child c -> Child c
-    | Item (c, _) -> Item (c, "")
-
-  { model with CurrentEntry = newCurrent }
+  match model.CurrentEntry with
+  | Child _ -> model
+  | Item (c, _) -> { model with CurrentEntry = Item (c, "") }
 
 let addedChild model =
   let newModel =
