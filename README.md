@@ -1,3 +1,5 @@
+[![Build status](https://taeguk.visualstudio.com/DefaultCollection/Public/_apis/build/status/XmasList%20CI)](https://taeguk.visualstudio.com/DefaultCollection/Public/_build/latest?definitionId=25)
+
 Tree icon originally from:
 https://images.vexels.com/media/users/3/129793/isolated/lists/3a58ed394125fc70c8acc757cc83f8be-christmas-pine-tree-icon.png
 
