@@ -25,29 +25,33 @@ let createStartAddButton dispatch child =
     OnClick (fun _ -> dispatch msg)
   ] [ str "add items"]
 
+type InputAndButton<'a> = {
+  Dispatch: Msg -> unit
+  InputValue: string
+  ButtonText: string
+  PlaceholderText: string
+  OnChange: 'a -> unit
+  OnCommitMsg: Msg
+  AdditionalInputProps: IHTMLProp list
+}
+
 let createInputButtonCombo
-  dispatch
-  value
-  buttonText
-  placeholderText
-  onChange
-  onCommitMsg
-  additionalInputProps =
+  inputAndButton =
   Field.div [ Field.HasAddons ] [
     Input.text [
-      Input.Placeholder placeholderText
-      Input.OnChange (fun ev -> onChange !!ev.target?value)
+      Input.Placeholder inputAndButton.PlaceholderText
+      Input.OnChange (fun ev -> inputAndButton.OnChange !!ev.target?value)
       Input.Props ([
         Props.AutoFocus true
-        onEnter dispatch onCommitMsg
-        Props.OnFocus (fun ev -> onChange !!ev.target?value)
-      ] @ additionalInputProps)
-      Input.Value value
+        onEnter inputAndButton.Dispatch inputAndButton.OnCommitMsg
+        Props.OnFocus (fun ev -> inputAndButton.OnChange !!ev.target?value)
+      ] @ inputAndButton.AdditionalInputProps)
+      Input.Value inputAndButton.InputValue
     ]
     Button.button [
       Button.Color Color.IsSuccess
-      Button.OnClick (fun _ -> dispatch onCommitMsg)
-    ] [ str buttonText ]
+      Button.OnClick (fun _ -> inputAndButton.Dispatch inputAndButton.OnCommitMsg)
+    ] [ str inputAndButton.ButtonText ]
   ]
 
 let createAddNewItemControl dispatch child item =
@@ -59,13 +63,13 @@ let createAddNewItemControl dispatch child item =
     (Props.OnBlur (fun _ -> dispatch EndedUpdatingItem))
 
   createInputButtonCombo
-    dispatch
-    item
-    "add item"
-    "Enter item name"
-    updateCurrent
-    AddedItem
-    [ onBlur ]
+    { Dispatch = dispatch
+      InputValue = item
+      ButtonText = "add item"
+      PlaceholderText = "Enter item name"
+      OnChange = updateCurrent
+      OnCommitMsg = AddedItem
+      AdditionalInputProps = [ onBlur ] }
 
 let renderNiceChild dispatch currentItem childName items =
 
@@ -167,13 +171,13 @@ let renderAddChild dispatch model =
 
     yield
       createInputButtonCombo
-        dispatch
-        model.CurrentEditor.EditingChildName
-        "add"
-        "Enter child's name"
-        updatingCurrent
-        AddedChild
-        []
+        { Dispatch = dispatch
+          InputValue = model.CurrentEditor.EditingChildName
+          ButtonText = "add"
+          PlaceholderText = "Enter child's name"
+          OnChange = updatingCurrent
+          OnCommitMsg = AddedChild
+          AdditionalInputProps = [] }
   ]
 
 let renderSantasList list =
@@ -198,13 +202,15 @@ let root model dispatch =
   div [ ] [
 
     Navbar.navbar [ Navbar.Color Color.IsPrimary ] [
-      Navbar.Brand.a [ ] [
-        Image.image [ Image.Is48x48 ] [
-          img [ Src "img/brand.png" ]
-        ]
-      ]
+      Navbar.Brand.div [ ] [
+         a [ Href "/" ] [
+          Image.image [ Image.Is48x48 ] [
+            img [ Src "img/brand.png" ]
+          ]]]
+
       Navbar.Item.div [ ] [
-        Heading.h2 [ ] [ str "Santa's Xmas Manager"]
+        Heading.h2 [
+        ] [ str "Santa's Xmas Manager"]
       ]
     ]
 
