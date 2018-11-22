@@ -11,13 +11,6 @@ type private AddItemToChild = Child -> Item -> Child * bool
 type private UpdateChild = Child list -> Child -> Child list
 type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
 
-let private canAddItem newItem items =
-  not (System.String.IsNullOrEmpty(newItem.Description))
-  &&
-  items
-  |> List.tryFind (fun i -> i.Description = newItem.Description)
-  |> Option.isNone
-
 let private canAddChild (newChild : Child) (children : Child list) =
   not (System.String.IsNullOrEmpty(newChild.Name))
   &&
@@ -31,6 +24,13 @@ let addChild : AddChild =
       { model with ChildrensList = model.ChildrensList @ [ child ] }
     else
       model
+
+let private canAddItem newItem items =
+  not (System.String.IsNullOrEmpty(newItem.Description))
+  &&
+  items
+  |> List.tryFind (fun i -> i.Description = newItem.Description)
+  |> Option.isNone
 
 let private addItemToChild : AddItemToChild =
   fun child item ->

@@ -6,7 +6,7 @@
     <ProjectReference Include="..\src\XmasList.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.test.fs" />
+    <Compile Include="Domain.test.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
