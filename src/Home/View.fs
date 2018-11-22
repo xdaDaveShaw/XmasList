@@ -24,10 +24,9 @@ let createStartAddButton dispatch child =
   let msg =
     Item (child, "") |> UpdatingCurrent
 
-  Button.button [
-    Button.Size Size.IsSmall
-    Button.OnClick (fun _ -> dispatch msg)
-  ] [ str "+" ]
+  a [
+    OnClick (fun _ -> dispatch msg)
+  ] [ str "add items"]
 
 let createAddNewItemControl dispatch child item =
 
