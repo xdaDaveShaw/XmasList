@@ -125,7 +125,9 @@ let renderChildList dispatch model =
     yield
       Table.table [
         Table.IsFullWidth
-      ] childList
+      ] [
+        tbody [ ] childList
+      ]
   ]
 
 let renderAddChild dispatch currentEditor =
