@@ -1,6 +1,6 @@
-module Home.Domain
+module XmasList.Domain
 
-open Home.Types
+open XmasList.Types
 
 type AddChild = Model -> Child -> Model
 type AddItem = Model -> Child -> Item -> Model

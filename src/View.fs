@@ -1,4 +1,4 @@
-module Home.View
+module XmasList.View
 
 open Fable.Core
 open Fable.Core.JsInterop

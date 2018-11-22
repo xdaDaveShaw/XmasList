@@ -1,44 +1,68 @@
-module App.State
+module XmasList.State
 
 open Elmish
-open Elmish.Browser.Navigation
-open Elmish.Browser.UrlParser
-open Fable.Import.Browser
-open Global
 open Types
 
-let pageParser: Parser<Page->Page,Page> =
-  oneOf [
-    map About (s "about")
-    map Counter (s "counter")
-    map Home (s "home")
-  ]
+let init () : Model * Cmd<Msg> =
+  { ChildrensList = []
+    CurrentEditor = { EditingChildName = ""; CurrentItem = None }
+    SantasList = [] },
+  []
 
-let urlUpdate (result: Option<Page>) model =
-  match result with
-  | None ->
-    console.error("Error parsing url")
-    model,Navigation.modifyUrl (toHash model.currentPage)
-  | Some page ->
-      { model with currentPage = page }, []
+let updateEditorState model newState =
+  { model with CurrentEditor = newState }
 
-let init result =
-  let (counter, counterCmd) = Counter.State.init()
-  let (home, homeCmd) = Home.State.init()
-  let (model, cmd) =
-    urlUpdate result
-      { currentPage = Home
-        counter = counter
-        home = home }
-  model, Cmd.batch [ cmd
-                     Cmd.map CounterMsg counterCmd
-                     Cmd.map HomeMsg homeCmd ]
+let updatingCurrentChild model name =
+  let newState = { model.CurrentEditor with EditingChildName = name }
+  updateEditorState model newState
 
-let update msg model =
+let updatingCurrentItem model child item =
+  let newState = { model.CurrentEditor with CurrentItem = Some (child, item) }
+  updateEditorState model newState
+
+let endedUpdatingItem model =
+  let newState = { model.CurrentEditor with CurrentItem = None }
+  updateEditorState model newState
+
+let clearCurrentChild model =
+  let newState = { model.CurrentEditor with EditingChildName = "" }
+  updateEditorState model newState
+
+let addedChild model =
+  let newModel =
+    Domain.addChild model { Name = model.CurrentEditor.EditingChildName; NaughtyOrNice = Undecided }
+
+  clearCurrentChild newModel
+
+let clearCurrentItem model =
+  let newItem =
+    model.CurrentEditor.CurrentItem
+    |> Option.map (fun (child, _) -> child, "")
+
+  let newState = { model.CurrentEditor with CurrentItem = newItem }
+  updateEditorState model newState
+
+let addedItem model =
+  let newModel =
+    match model.CurrentEditor.CurrentItem with
+    | Some (child, item) -> Domain.addItem model child { Description = item }
+    | _ -> model
+  clearCurrentItem newModel
+
+let reviewedChild model child naughtyOrNice =
+  Domain.reviewChild model child naughtyOrNice
+
+let update msg model : Model * Cmd<Msg> =
   match msg with
-  | CounterMsg msg ->
-      let (counter, counterCmd) = Counter.State.update msg model.counter
-      { model with counter = counter }, Cmd.map CounterMsg counterCmd
-  | HomeMsg msg ->
-      let (home, homeCmd) = Home.State.update msg model.home
-      { model with home = home }, Cmd.map HomeMsg homeCmd
+  | UpdatingChild name ->
+    updatingCurrentChild model name, []
+  | UpdatingItem (child, item) ->
+    updatingCurrentItem model child item, []
+  | EndedUpdatingItem ->
+    endedUpdatingItem model, []
+  | AddedChild ->
+    addedChild model, []
+  | AddedItem ->
+    addedItem model, []
+  | ReviewedChild (child, naughtyOrNice) ->
+    reviewedChild model child naughtyOrNice, []
