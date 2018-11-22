@@ -8,3 +8,9 @@ Running Tests
 
  - `dotnet fable yarn-run test-build`
  - `yarn run test-watch`
+
+# Building
+
+`fake run build.fsx`
+
+TODO: Needs changing to a simple batch file that can pass targets
