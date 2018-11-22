@@ -133,7 +133,7 @@ let renderChildList dispatch model =
 let renderAddChild dispatch currentEditor =
 
   let autoFocus =
-    currentEditor.CurrentItem |> Option.isSome
+    currentEditor.CurrentItem |> Option.isNone
 
   let updatingCurrent s =
     s |> UpdatingChild |> dispatch
