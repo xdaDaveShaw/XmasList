@@ -49,7 +49,7 @@
       "args": [
         "fable",
         "yarn-run",
-        "test-build"
+        "test-buildwatch"
       ],
       "command": "dotnet",
       "isBackground": true,

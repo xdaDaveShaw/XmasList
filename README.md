@@ -2,15 +2,22 @@ Tree icon originally from:
 https://images.vexels.com/media/users/3/129793/isolated/lists/3a58ed394125fc70c8acc757cc83f8be-christmas-pine-tree-icon.png
 
 
-Running Tests
+Developing
 
-2 * Consoles
+  Run Server
 
- - `dotnet fable yarn-run test-build`
+  In "src" run:
+
+ - `dotnet fable yarn-run start`
+
+Running Tests for developing
+
+2 * Consoles both in "src"
+
+ - `dotnet fable yarn-run test-buildwatch`
  - `yarn run test-watch`
 
-# Building
+# Building for releases
 
-`fake run build.fsx`
+`build.cmd` / `build.sh`
 
-TODO: Needs changing to a simple batch file that can pass targets

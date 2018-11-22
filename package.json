@@ -8,7 +8,8 @@
     "test": "jest",
     "coverage": "jest --coverage",
     "test-watch": "jest --watchAll",
-    "test-build": "fable-splitter  --config tests/splitter.config.js --watch"
+    "test-build": "fable-splitter  --config tests/splitter.config.js",
+    "test-buildwatch": "fable-splitter  --config tests/splitter.config.js --watch"
   },
   "keywords": [],
   "author": "",

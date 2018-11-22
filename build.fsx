@@ -1,6 +1,7 @@
 #r "paket:
 nuget Fake.IO.FileSystem
 nuget Fake.DotNet.Cli
+nuget Fake.JavaScript.Yarn
 nuget Fake.Core.Target //"
 #load ".fake/build.fsx/intellisense.fsx"
 
@@ -10,15 +11,16 @@ open Fake.IO
 open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
+open Fake.JavaScript
 
 let CWD = __SOURCE_DIRECTORY__
 
 let srcDir = CWD </> "src"
 
 Target.create "Clean" (fun _ ->
-    !! "src/**/bin"
-    ++ "src/**/obj"
-    |> Shell.cleanDirs
+  !! "src/**/bin"
+  ++ "src/**/obj"
+  |> Shell.cleanDirs
 )
 let inline withWorkDir wd =
   DotNet.Options.withWorkingDirectory wd
@@ -29,8 +31,18 @@ Target.create "Restore" (fun _ ->
 )
 
 Target.create "Build" (fun _ ->
-    DotNet.exec (withWorkDir srcDir) "fable" "yarn-run build"
-    |> ignore
+  DotNet.exec (withWorkDir srcDir) "fable" "yarn-run build"
+  |> ignore
+)
+
+Target.create "TestBuild" (fun _ ->
+  DotNet.exec (withWorkDir srcDir) "fable" "yarn-run test-build"
+  |> ignore
+)
+
+Target.create "Test" (fun _ ->
+  Yarn.exec "run test" (fun opts -> opts)
+  |> ignore
 )
 
 Target.create "All" ignore
@@ -38,6 +50,8 @@ Target.create "All" ignore
 "Clean"
   ==> "Restore"
   ==> "Build"
+  ==> "TestBuild"
+  ==> "Test"
   ==> "All"
 
 Target.runOrDefault "All"
