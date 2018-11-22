@@ -11,4 +11,6 @@ nuget Fable.Elmish.Browser
 nuget Fable.Elmish.Debugger
 nuget Fulma
 
+nuget Fable.Import.Jest
+
 clitool dotnet-fable
