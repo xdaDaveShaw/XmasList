@@ -30,6 +30,11 @@ Target.create "Restore" (fun _ ->
   |> ignore
 )
 
+Target.create "YarnInstall" (fun _ ->
+  Yarn.install (fun opts -> opts)
+  |> ignore
+)
+
 Target.create "Build" (fun _ ->
   DotNet.exec (withWorkDir srcDir) "fable" "yarn-run build"
   |> ignore
@@ -49,6 +54,7 @@ Target.create "All" ignore
 
 "Clean"
   ==> "Restore"
+  ==> "YarnInstall"
   ==> "Build"
   ==> "TestBuild"
   ==> "Test"
