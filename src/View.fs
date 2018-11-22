@@ -29,11 +29,13 @@ let createInputButtonCombo
   dispatch
   value
   buttonText
+  placeholderText
   onChange
   onCommitMsg
   additionalInputProps =
   Field.div [ Field.HasAddons ] [
     Input.text [
+      Input.Placeholder placeholderText
       Input.OnChange (fun ev -> onChange !!ev.target?value)
       Input.Props ([
         Props.AutoFocus true
@@ -60,6 +62,7 @@ let createAddNewItemControl dispatch child item =
     dispatch
     item
     "add item"
+    "Enter item name"
     updateCurrent
     AddedItem
     [ onBlur ]
@@ -134,7 +137,7 @@ let renderChildList dispatch model =
 
   Content.content [ ] [
     if not (List.isEmpty model.ChildrensList) then
-      yield Heading.h3 [ ] [ str "List of Children" ]
+      yield Heading.h3 [ ] [ str "List of children" ]
 
     yield
       Table.table [
@@ -167,6 +170,7 @@ let renderAddChild dispatch model =
         dispatch
         model.CurrentEditor.EditingChildName
         "add"
+        "Enter child's name"
         updatingCurrent
         AddedChild
         []
@@ -186,7 +190,7 @@ let renderSantasList list =
     nothing
   else
     Content.content [ ] [
-      Heading.h3 [ ] [ str "Santa's List" ]
+      Heading.h3 [ ] [ str "Santa's list" ]
       ul [ ] items
     ]
 
