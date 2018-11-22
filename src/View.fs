@@ -1,11 +1,9 @@
 module XmasList.View
 
-open Fable.Core
 open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
 open Fulma
-open Fulma.FontAwesome
 open Types
 
 let onEnter dispatch msg =
@@ -17,14 +15,6 @@ let onEnter dispatch msg =
 
       | _ -> ())
 
-let createStartAddButton dispatch child =
-  let msg =
-    (child, "") |> UpdatingItem
-
-  a [
-    OnClick (fun _ -> dispatch msg)
-  ] [ str "add items"]
-
 type InputAndButton<'a> = {
   Dispatch: Msg -> unit
   InputValue: string
@@ -33,16 +23,16 @@ type InputAndButton<'a> = {
   OnChange: 'a -> unit
   OnCommitMsg: Msg
   AdditionalInputProps: IHTMLProp list
+  AutoFocus: bool
 }
 
-let createInputButtonCombo
-  inputAndButton =
+let createInputButtonCombo inputAndButton =
   Field.div [ Field.HasAddons ] [
     Input.text [
       Input.Placeholder inputAndButton.PlaceholderText
       Input.OnChange (fun ev -> inputAndButton.OnChange !!ev.target?value)
       Input.Props ([
-        Props.AutoFocus true
+        Props.AutoFocus inputAndButton.AutoFocus
         onEnter inputAndButton.Dispatch inputAndButton.OnCommitMsg
         Props.OnFocus (fun ev -> inputAndButton.OnChange !!ev.target?value)
       ] @ inputAndButton.AdditionalInputProps)
@@ -69,9 +59,18 @@ let createAddNewItemControl dispatch child item =
       PlaceholderText = "Enter item name"
       OnChange = updateCurrent
       OnCommitMsg = AddedItem
-      AdditionalInputProps = [ onBlur ] }
+      AdditionalInputProps = [ onBlur ]
+      AutoFocus = true }
 
-let renderNiceChild dispatch currentItem childName items =
+let createStartAddButton dispatch child =
+  let msg =
+    (child, "") |> UpdatingItem
+
+  a [
+    OnClick (fun _ -> dispatch msg)
+  ] [ str "add items"]
+
+let createNiceChildRow dispatch currentItem childName items =
 
   let itemList =
     items
@@ -89,22 +88,20 @@ let renderNiceChild dispatch currentItem childName items =
     ]
   ]
 
-let renderNaughtyChild name =
-  tr [
-  ] [
-    td [
-      ColSpan 3
-    ] [ str (name + " has been naughty.") ]
+let createNaughtyChildRow name =
+  tr [ ] [
+    td [ ColSpan 3 ]
+      [ str (name + " has been naughty.") ]
   ]
 
-let renderUndecidedChild dispatch childName =
+let createUndecidedChildRow dispatch childName =
 
   let createButton non =
     let text, col =
       match non with
       | Nice _ -> "nice", Color.IsSuccess
       | Naughty -> "naughty", Color.IsDanger
-      | Undecided -> "", Color.IsBlack
+      | Undecided -> "", Color.NoColor
 
     Control.p [ ] [
       Button.button [
@@ -125,11 +122,11 @@ let renderChildListItem dispatch currentItem child =
   let content =
     match child.NaughtyOrNice with
     | Nice items ->
-      renderNiceChild dispatch currentItem child.Name items
+      createNiceChildRow dispatch currentItem child.Name items
     | Undecided ->
-      renderUndecidedChild dispatch child.Name
+      createUndecidedChildRow dispatch child.Name
     | Naughty ->
-      renderNaughtyChild child.Name
+      createNaughtyChildRow child.Name
 
   content
 
@@ -137,7 +134,7 @@ let renderChildList dispatch model =
 
   let childList =
     model.ChildrensList
-    |> List.map (fun c -> renderChildListItem dispatch model.CurrentEditor.CurrentItem c)
+    |> List.map (fun child -> renderChildListItem dispatch model.CurrentEditor.CurrentItem child)
 
   Content.content [ ] [
     if not (List.isEmpty model.ChildrensList) then
@@ -167,7 +164,7 @@ let renderAddChild dispatch model =
 
     if model.ChildrensList |> List.isEmpty then
       yield
-        Heading.h5 [ Heading.IsSubtitle ] [ str "Add some children to the list to get started"]
+        Heading.h5 [ Heading.IsSubtitle ] [ str "Add some children to get started"]
 
     yield
       createInputButtonCombo
@@ -177,13 +174,14 @@ let renderAddChild dispatch model =
           PlaceholderText = "Enter child's name"
           OnChange = updatingCurrent
           OnCommitMsg = AddedChild
-          AdditionalInputProps = [] }
+          AdditionalInputProps = []
+          AutoFocus = autoFocus }
   ]
 
 let renderSantasList list =
 
   let renderItem item =
-    let text = sprintf "%s * %d" item.ItemName item.Quantity
+    let text = sprintf "%d * %s" item.Quantity item.ItemName
     li [ ] [ str text ]
 
   let items =
