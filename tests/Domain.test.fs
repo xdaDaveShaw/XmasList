@@ -8,25 +8,30 @@ let defaultModel =
   fst (XmasList.State.init())
 
 test "Adding children works" <| fun () ->
-  let child1 = { Name = "Dave"; NaughtyOrNice = Undecided }
-  let child2 = { Name = "Shaw"; NaughtyOrNice = Undecided }
-  let newModel = Domain.addChild defaultModel child1
-  let newModel = Domain.addChild newModel child2
-  let addedChild = newModel.ChildrensList
-  [ child1; child2 ] == addedChild
+  let child1 = "Dave"
+  let child2 = "Shaw"
+
+  let newModel =
+    Domain.addChild child1 defaultModel
+    |> Domain.addChild child2
+
+  let expected = [
+    { Name = child1; NaughtyOrNice = Undecided }
+    { Name = child2; NaughtyOrNice = Undecided }
+  ]
+
+  newModel.ChildrensList == expected
+
 
 test "Cannot add child with no name" <| fun () ->
-  let child = { Name = ""; NaughtyOrNice = Undecided }
-  let newModel = Domain.addChild defaultModel child
+  let child = ""
+  let newModel = Domain.addChild child defaultModel
 
   defaultModel == newModel
 
 test "Cannot add child twice" <| fun () ->
-  let child1 = { Name = "Dave"; NaughtyOrNice = Undecided }
-  let child2 = { Name = "Dave"; NaughtyOrNice = Undecided }
-
-  let modelAfter1 = Domain.addChild defaultModel child1
-  let modelAfter2 = Domain.addChild modelAfter1 child2
+  let modelAfter1 = Domain.addChild "Dave" defaultModel
+  let modelAfter2 = Domain.addChild "Dave" modelAfter1
 
   modelAfter1 == modelAfter2
 
@@ -34,28 +39,28 @@ test "Reviewing a nice child" <| fun () ->
   let child = { Name = "Dave"; NaughtyOrNice = Undecided }
   let model = { defaultModel with ChildrensList = [ child ] }
 
-  let newModel = Domain.reviewChild model child (Nice [])
+  let newModel = Domain.reviewChild "Dave" (Nice []) model
 
   let expected = { child with NaughtyOrNice = Nice [] }
   let actual = newModel.ChildrensList |> List.head
-  expected == actual
+  actual == expected
 
 test "Reviewing a naughty child" <| fun () ->
   let child = { Name = "Dave"; NaughtyOrNice = Undecided }
   let model = { defaultModel with ChildrensList = [ child ] }
 
-  let newModel = Domain.reviewChild model child Naughty
+  let newModel = Domain.reviewChild "Dave" Naughty model
 
   let expected = { child with NaughtyOrNice = Naughty }
   let actual = newModel.ChildrensList |> List.head
-  expected == actual
+  actual == expected
 
 test "Cannot add item to naughty child" <| fun () ->
   let child = { Name = "Dave"; NaughtyOrNice = Naughty }
   let model = { defaultModel with ChildrensList = [ child ] }
   let item = { Description = "Book" }
 
-  let newModel = Domain.addItem model child item
+  let newModel = Domain.addItem "Dave" item model
 
   model == newModel
 
@@ -64,7 +69,7 @@ test "Cannot add item to undecided child" <| fun () ->
   let model = { defaultModel with ChildrensList = [ child ] }
   let item = { Description = "Book" }
 
-  let newModel = Domain.addItem model child item
+  let newModel = Domain.addItem "Dave" item model
 
   model == newModel
 
@@ -73,27 +78,27 @@ test "Adding first item to a child" <| fun () ->
   let model = { defaultModel with ChildrensList = [ child ] }
   let item = { Description = "Book" }
 
-  let newModel = Domain.addItem model child item
+  let newModel = Domain.addItem "Dave" item model
 
-  let expectedChild = { child with NaughtyOrNice = Nice [ item ] }
-  let actualChild = newModel.ChildrensList |> List.head
+  let expectedChild = [ { child with NaughtyOrNice = Nice [ item ] } ]
+  let actualChild = newModel.ChildrensList
   let expectedSanta = { ItemName = "Book"; Quantity = 1 }
   let actualSanta = newModel.SantasList
-  expectedChild == actualChild
-  [ expectedSanta ] == actualSanta
+  actualChild == expectedChild
+  actualSanta == [ expectedSanta ]
 
 test "Cannot add item with no name to a child" <| fun () ->
   let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
   let model = { defaultModel with ChildrensList = [ child ] }
   let item = { Description = "" }
 
-  let newModel = Domain.addItem model child item
+  let newModel = Domain.addItem "Dave" item model
 
-  let expectedChild = { child with NaughtyOrNice = Nice [] }
-  let actualChild = newModel.ChildrensList |> List.head
+  let expectedChild = [ { child with NaughtyOrNice = Nice [] } ]
+  let actualChild = newModel.ChildrensList
   let actualSanta = newModel.SantasList
-  expectedChild == actualChild
-  [] == actualSanta
+  actualChild == expectedChild
+  actualSanta == []
 
 
 test "Cannot add duplicate item to same child" <| fun () ->
@@ -101,16 +106,16 @@ test "Cannot add duplicate item to same child" <| fun () ->
   let model = { defaultModel with ChildrensList = [ child ] }
   let item = { Description = "Book" }
 
-  let newModel = Domain.addItem model child item
-  let newChild = newModel.ChildrensList |> List.head
-  let newModel = Domain.addItem newModel newChild item
+  let newModel =
+    Domain.addItem "Dave" item model
+    |> Domain.addItem "Dave" item
 
-  let expectedChild = { child with NaughtyOrNice = Nice [ item ] }
+  let expectedChild = [ { child with NaughtyOrNice = Nice [ item ] } ]
   let actualChildren = newModel.ChildrensList
-  let expectedSanta = { ItemName = "Book"; Quantity = 1 }
+  let expectedSanta = [ { ItemName = "Book"; Quantity = 1 } ]
   let actualSanta = newModel.SantasList
-  [ expectedChild ] == actualChildren
-  [ expectedSanta ] == actualSanta
+  actualChildren == expectedChild
+  actualSanta == expectedSanta
 
 test "Can add duplicate item to different child" <| fun () ->
   let child1 = { Name = "Dave"; NaughtyOrNice = Nice [] }
@@ -118,18 +123,19 @@ test "Can add duplicate item to different child" <| fun () ->
   let model = { defaultModel with ChildrensList = [ child1; child2 ] }
   let item = { Description = "Book" }
 
-  let newModel = Domain.addItem model child1 item
-  let newModel = Domain.addItem newModel child2 item
+  let newModel =
+    Domain.addItem "Dave" item model
+    |> Domain.addItem "Shaw" item
 
   let expectedChildren = [
     { child1 with NaughtyOrNice = Nice [ item ] }
     { child2 with NaughtyOrNice = Nice [ item ] }
   ]
   let actualChildren = newModel.ChildrensList
-  let expectedSanta = { ItemName = "Book"; Quantity = 2 }
+  let expectedSanta = [ { ItemName = "Book"; Quantity = 2 } ]
   let actualSanta = newModel.SantasList
-  expectedChildren == actualChildren
-  [ expectedSanta ] == actualSanta
+  actualChildren == expectedChildren
+  actualSanta == expectedSanta
 
 
 test "Adding subsequent items to a child" <| fun () ->
@@ -141,11 +147,10 @@ test "Adding subsequent items to a child" <| fun () ->
   let item2 = { Description = "Hat" }
   let item3 = { Description = "Scarf" }
 
-  let newModel = Domain.addItem model child item1
-  let newChild = newModel.ChildrensList |> List.head
-  let newModel = Domain.addItem newModel newChild item2
-  let newChild = newModel.ChildrensList |> List.head
-  let newModel = Domain.addItem newModel newChild item3
+  let newModel =
+    Domain.addItem "Dave" item1 model
+    |> Domain.addItem "Dave" item2
+    |> Domain.addItem "Dave" item3
 
   let expectedChild = { child with NaughtyOrNice = Nice [ item1; item2; item3; ] }
   let actualChild = newModel.ChildrensList |> List.head
@@ -155,5 +160,5 @@ test "Adding subsequent items to a child" <| fun () ->
     { ItemName = "Scarf"; Quantity = 1 }
   ]
   let actualSanta = newModel.SantasList
-  expectedChild == actualChild
-  expectedSanta == actualSanta
+  actualChild == expectedChild
+  actualSanta == expectedSanta

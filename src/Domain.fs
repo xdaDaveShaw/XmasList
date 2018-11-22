@@ -2,26 +2,26 @@ module XmasList.Domain
 
 open XmasList.Types
 
-type AddChild = Model -> Child -> Model
-type AddItem = Model -> Child -> Item -> Model
-type ReviewChild = Model -> Child -> NaughtyOrNice -> Model
+type AddChild = string -> Model -> Model
+type AddItem = string -> Item -> Model -> Model
+type ReviewChild = string -> NaughtyOrNice -> Model -> Model
 
 // Private functions for aggreates
 type private AddItemToChild = Child -> Item -> Child * bool
 type private UpdateChild = Child list -> Child -> Child list
 type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
 
-let private canAddChild (newChild : Child) (children : Child list) =
-  not (System.String.IsNullOrEmpty(newChild.Name))
+let private canAddChild name children =
+  not (System.String.IsNullOrEmpty(name))
   &&
   children
-  |> List.tryFind (fun child -> child.Name = newChild.Name)
+  |> List.tryFind (fun child -> child.Name = name)
   |> Option.isNone
 
 let addChild : AddChild =
-  fun model child ->
+  fun child model ->
     if canAddChild child model.ChildrensList then
-      { model with ChildrensList = model.ChildrensList @ [ child ] }
+      { model with ChildrensList = model.ChildrensList @ [ { Name = child; NaughtyOrNice = Undecided; } ] }
     else
       model
 
@@ -67,10 +67,16 @@ let private addItemToSantasList : UpdateSantasList =
       xs
       |> List.map update
 
-let addItem : AddItem =
-  fun model child item ->
+let private findExistingChild model name =
+  model.ChildrensList
+  |> List.find (fun c -> c.Name = name)
 
-    let newChild, success = addItemToChild child item
+let addItem : AddItem =
+  fun child item model ->
+
+    let existingChild = findExistingChild model child
+
+    let newChild, success = addItemToChild existingChild item
 
     let newChildList, newSantaList =
       if success then
@@ -86,10 +92,12 @@ let addItem : AddItem =
         SantasList = newSantaList }
 
 let reviewChild : ReviewChild =
-  fun model child non ->
+  fun child non model ->
+
+    let existingChild = findExistingChild model child
 
     let newChild =
-      { child with NaughtyOrNice = non}
+      { existingChild with NaughtyOrNice = non}
 
     let newChildList =
       updateChild model.ChildrensList newChild

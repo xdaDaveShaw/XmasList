@@ -64,7 +64,7 @@ let createAddNewItemControl dispatch child item =
     AddedItem
     [ onBlur ]
 
-let renderNiceChild dispatch currentItem child items =
+let renderNiceChild dispatch currentItem childName items =
 
   let itemList =
     items
@@ -72,12 +72,12 @@ let renderNiceChild dispatch currentItem child items =
 
   let addControl =
     match currentItem with
-    | Some (c, item) when c.Name = child.Name -> createAddNewItemControl dispatch child item
-    | _ -> li [ ] [ createStartAddButton dispatch child ]
+    | Some (cName, item) when cName = childName -> createAddNewItemControl dispatch childName item
+    | _ -> li [ ] [ createStartAddButton dispatch childName ]
 
   tr [ ] [
     td [ ColSpan 3 ] [
-      strong [ ] [ str child.Name ]
+      strong [ ] [ str childName ]
       ul [ ] (itemList @ [ addControl ])
     ]
   ]
@@ -90,7 +90,7 @@ let renderNaughtyChild name =
     ] [ str (name + " has been naughty.") ]
   ]
 
-let renderUndecidedChild dispatch child =
+let renderUndecidedChild dispatch childName =
 
   let createButton non =
     let text, col =
@@ -103,12 +103,12 @@ let renderUndecidedChild dispatch child =
       Button.button [
         Button.Color col
         Button.Size Size.IsSmall
-        Button.OnClick (fun _ -> dispatch (ReviewedChild (child, non)))
+        Button.OnClick (fun _ -> dispatch (ReviewedChild (childName, non)))
       ] [ str (text) ]
     ]
 
   tr [ ] [
-    td [ Props.HTMLAttr.Width "100%" ] [ str child.Name ]
+    td [ Props.HTMLAttr.Width "100%" ] [ str childName ]
     td [ ] [ createButton (Nice []) ]
     td [ ] [ createButton Naughty ]
   ]
@@ -118,9 +118,9 @@ let renderChildListItem dispatch currentItem child =
   let content =
     match child.NaughtyOrNice with
     | Nice items ->
-      renderNiceChild dispatch currentItem child items
+      renderNiceChild dispatch currentItem child.Name items
     | Undecided ->
-      renderUndecidedChild dispatch child
+      renderUndecidedChild dispatch child.Name
     | Naughty ->
       renderNaughtyChild child.Name
 

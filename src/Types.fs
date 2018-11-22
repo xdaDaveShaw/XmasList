@@ -21,7 +21,7 @@ type SantasItem = {
 
 type CurrentEditorState = {
   EditingChildName: string
-  CurrentItem: (Child * string) option
+  CurrentItem: (string * string) option
 }
 
 type Model = {
@@ -32,8 +32,8 @@ type Model = {
 
 type Msg =
   | UpdatingChild of string
-  | UpdatingItem of Child * string
+  | UpdatingItem of string * string
   | EndedUpdatingItem
   | AddedChild
   | AddedItem
-  | ReviewedChild of Child * NaughtyOrNice
+  | ReviewedChild of string * NaughtyOrNice

@@ -29,10 +29,8 @@ let clearCurrentChild model =
   updateEditorState model newState
 
 let addedChild model =
-  let newModel =
-    Domain.addChild model { Name = model.CurrentEditor.EditingChildName; NaughtyOrNice = Undecided }
-
-  clearCurrentChild newModel
+  Domain.addChild model.CurrentEditor.EditingChildName model
+  |> clearCurrentChild
 
 let clearCurrentItem model =
   let newItem =
@@ -45,12 +43,12 @@ let clearCurrentItem model =
 let addedItem model =
   let newModel =
     match model.CurrentEditor.CurrentItem with
-    | Some (child, item) -> Domain.addItem model child { Description = item }
+    | Some (child, item) -> Domain.addItem child { Description = item } model
     | _ -> model
   clearCurrentItem newModel
 
-let reviewedChild model child naughtyOrNice =
-  Domain.reviewChild model child naughtyOrNice
+let reviewedChild child naughtyOrNice model =
+  Domain.reviewChild child naughtyOrNice model
 
 let update msg model : Model * Cmd<Msg> =
   match msg with
@@ -65,4 +63,4 @@ let update msg model : Model * Cmd<Msg> =
   | AddedItem ->
     addedItem model, []
   | ReviewedChild (child, naughtyOrNice) ->
-    reviewedChild model child naughtyOrNice, []
+    reviewedChild child naughtyOrNice model, []
