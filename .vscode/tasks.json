@@ -1,44 +1,105 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "runner": "terminal",
-    "args": [],
-    "options": {
-        "cwd": "${workspaceRoot}/src"
-    },
-    "tasks": [
-        {
-            "label": "Start",
-            "args": ["fable", "yarn-run", "start" ],
-            "command": "dotnet",
-            "isBackground": true,
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": {
-                "fileLocation": "absolute",
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern":{
-                        "regexp": "webpack: Compiling"
-                    },
-                    "endsPattern":{
-                        "regexp": "webpack: (Compiled successfully|Failed to compile)"
-                    }
-                },
-                "pattern": {
-                    "regexp": "^(.*)\\((\\d+),(\\d+)\\): \\((\\d+),(\\d+)\\) (warning|error) FABLE: (.*)$",
-                    "file": 1,
-                    "line": 2,
-                    "column": 3,
-                    "endLine": 4,
-                    "endColumn": 5,
-                    "severity": 6,
-                    "message": 7
-                }
-            }
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "runner": "terminal",
+  "args": [],
+  "options": {
+    "cwd": "${workspaceRoot}/src"
+  },
+  "tasks": [
+    {
+      "label": "Start",
+      "args": [
+        "fable",
+        "yarn-run",
+        "start"
+      ],
+      "command": "dotnet",
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": {
+        "fileLocation": "absolute",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "webpack: Compiling"
+          },
+          "endsPattern": {
+            "regexp": "webpack: (Compiled successfully|Failed to compile)"
+          }
+        },
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\): \\((\\d+),(\\d+)\\) (warning|error) FABLE: (.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "endLine": 4,
+          "endColumn": 5,
+          "severity": 6,
+          "message": 7
         }
-    ]
+      }
+    },
+    {
+      "label": "Watch",
+      "args": [
+        "fable",
+        "yarn-run",
+        "test-build"
+      ],
+      "command": "dotnet",
+      "isBackground": true,
+      "group": "none",
+      "type": "process",
+      "problemMatcher": {
+        "fileLocation": "absolute",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "webpack: Compiling"
+          },
+          "endsPattern": {
+            "regexp": "webpack: (Compiled successfully|Failed to compile)"
+          }
+        },
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\): \\((\\d+),(\\d+)\\) (warning|error) FABLE: (.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "endLine": 4,
+          "endColumn": 5,
+          "severity": 6,
+          "message": 7
+        }
+      }
+    },
+    {
+      "label": "Test",
+      "args": [
+        "run",
+        "test-watch"
+      ],
+      "command": "yarn",
+      "isBackground": true,
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "type": "shell",
+      "problemMatcher": {
+        "fileLocation": "absolute",
+        "background": {
+          "activeOnStart": true,
+        },
+        "pattern": {
+          "regexp": "failed"
+        }
+      }
+    }
+  ]
 }
