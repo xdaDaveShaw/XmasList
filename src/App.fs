@@ -9,13 +9,12 @@ importAll "../sass/main.sass"
 
 open Elmish.React
 open Elmish.Debug
-open Elmish.HMR
+open Elmish.HMR //Must be last
 
 // App
 Program.mkProgram init update root
 #if DEBUG
 |> Program.withDebugger
-|> Program.withHMR
 #endif
 |> Program.withReact "elmish-app"
 |> Program.run
