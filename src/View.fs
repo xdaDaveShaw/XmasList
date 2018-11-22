@@ -17,9 +17,6 @@ let onEnter dispatch msg =
 
       | _ -> ())
 
-let itemListItem item =
-  li [] [ str item.Description ]
-
 let createStartAddButton dispatch child =
   let msg =
     (child, "") |> UpdatingItem
@@ -28,33 +25,50 @@ let createStartAddButton dispatch child =
     OnClick (fun _ -> dispatch msg)
   ] [ str "add items"]
 
+let createInputButtonCombo
+  dispatch
+  value
+  buttonText
+  onChange
+  onCommitMsg
+  additionalInputProps =
+  Field.div [ Field.HasAddons ] [
+    Input.text [
+      Input.OnChange (fun ev -> onChange !!ev.target?value)
+      Input.Props ([
+        Props.AutoFocus true
+        onEnter dispatch onCommitMsg
+        Props.OnFocus (fun ev -> onChange !!ev.target?value)
+      ] @ additionalInputProps)
+      Input.Value value
+    ]
+    Button.button [
+      Button.Color Color.IsSuccess
+      Button.OnClick (fun _ -> dispatch onCommitMsg)
+    ] [ str buttonText ]
+  ]
+
 let createAddNewItemControl dispatch child item =
 
   let updateCurrent s =
     (child, s) |> UpdatingItem |> dispatch
 
-  Field.div [ Field.HasAddons ] [
-    Input.text [
-      Input.OnChange (fun ev -> updateCurrent !!ev.target?value)
-      Input.Props [
-        Props.AutoFocus true
-        onEnter dispatch AddedItem
-        Props.OnFocus (fun ev -> updateCurrent !!ev.target?value)
-        Props.OnBlur (fun _ -> dispatch EndedUpdatingItem)
-      ]
-      Input.Value item
-    ]
-    Button.button [
-      Button.Color Color.IsSuccess
-      Button.OnClick (fun _ -> dispatch AddedItem)
-    ] [ str "add item" ]
-  ]
+  let onBlur =
+    (Props.OnBlur (fun _ -> dispatch EndedUpdatingItem))
+
+  createInputButtonCombo
+    dispatch
+    item
+    "add item"
+    updateCurrent
+    AddedItem
+    [ onBlur ]
 
 let renderNiceChild dispatch currentItem child items =
 
   let itemList =
     items
-    |> List.map itemListItem
+    |> List.map (fun item -> li [] [ str item.Description ])
 
   let addControl =
     match currentItem with
@@ -63,7 +77,7 @@ let renderNiceChild dispatch currentItem child items =
 
   tr [ ] [
     td [ ColSpan 3 ] [
-      str child.Name
+      strong [ ] [ str child.Name ]
       ul [ ] (itemList @ [ addControl ])
     ]
   ]
@@ -120,41 +134,42 @@ let renderChildList dispatch model =
 
   Content.content [ ] [
     if not (List.isEmpty model.ChildrensList) then
-      yield Heading.h1 [ ] [ str "List of Children" ]
+      yield Heading.h3 [ ] [ str "List of Children" ]
 
     yield
       Table.table [
         Table.IsFullWidth
+        Table.IsBordered
+        Table.IsStriped
       ] [
         tbody [ ] childList
       ]
   ]
 
-let renderAddChild dispatch currentEditor =
+let renderAddChild dispatch model =
 
   let autoFocus =
-    currentEditor.CurrentItem |> Option.isNone
+    model.CurrentEditor.CurrentItem |> Option.isNone
 
   let updatingCurrent s =
     s |> UpdatingChild |> dispatch
 
   Content.content [ ] [
-    Heading.h1 [ ] [ str "Add children" ]
-    Field.div [ Field.HasAddons ] [
-      Input.text [
-        Input.OnChange (fun ev -> updatingCurrent !!ev.target?value)
-        Input.Props [
-          Props.AutoFocus autoFocus
-          Props.OnFocus (fun ev -> updatingCurrent !!ev.target?value)
-          onEnter dispatch AddedChild
-        ]
-        Input.Value currentEditor.EditingChildName
-      ]
-      Button.button [
-        Button.Color Color.IsSuccess
-        Button.OnClick (fun _ -> dispatch AddedChild )
-      ] [ str "add" ]
-    ]
+    yield
+      Heading.h3 [ ] [ str "Add children" ]
+
+    if model.ChildrensList |> List.isEmpty then
+      yield
+        Heading.h5 [ Heading.IsSubtitle ] [ str "Add some children to the list to get started"]
+
+    yield
+      createInputButtonCombo
+        dispatch
+        model.CurrentEditor.EditingChildName
+        "add"
+        updatingCurrent
+        AddedChild
+        []
   ]
 
 let renderSantasList list =
@@ -167,15 +182,31 @@ let renderSantasList list =
     list
     |> List.map renderItem
 
-  Content.content [ ] [
-    Heading.h1 [ ] [ str "Santa's List" ]
-    ul [ ] items
-  ]
+  if items |> List.isEmpty then
+    nothing
+  else
+    Content.content [ ] [
+      Heading.h3 [ ] [ str "Santa's List" ]
+      ul [ ] items
+    ]
 
 let root model dispatch =
-
   div [ ] [
-    renderChildList dispatch model
-    renderAddChild dispatch model.CurrentEditor
-    renderSantasList model.SantasList
+
+    Navbar.navbar [ Navbar.Color Color.IsPrimary ] [
+      Navbar.Brand.a [ ] [
+        Image.image [ Image.Is48x48 ] [
+          img [ Src "img/brand.png" ]
+        ]
+      ]
+      Navbar.Item.div [ ] [
+        Heading.h2 [ ] [ str "Santa's Xmas Manager"]
+      ]
+    ]
+
+    Container.container [ ] [
+      renderAddChild dispatch model
+      renderChildList dispatch model
+      renderSantasList model.SantasList
+    ]
   ]

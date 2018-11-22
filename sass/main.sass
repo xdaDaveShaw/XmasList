@@ -1,7 +1,23 @@
 // Colors
-$purple: #7a325d
-$primary: $purple
+$xmasGreen: #006400
+$xmasRed: #b22222
+$primary: $xmasGreen
 $black: #202020
 
 @import '../node_modules/bulma/bulma'
 
+
+.navbar-item
+  h2
+    color: $xmasRed;
+
+.content
+  ul
+    margin-top: .5em
+    .field
+      margin-top: .3em;
+  li + li
+    margin-top: 0em;
+
+  h3
+    margin-bottom: .5em !important;
