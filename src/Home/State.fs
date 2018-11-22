@@ -5,43 +5,61 @@ open Types
 
 let init () : Model * Cmd<Msg> =
   { ChildrensList = []
-    CurrentEntry = Nothing
+    CurrentEditor = { EditingChildName = ""; CurrentItem = None }
     SantasList = [] },
   []
 
-let updatingCurrent model entry =
-  { model with CurrentEntry = entry }
+let updateEditorState model newState =
+  { model with CurrentEditor = newState }
+
+let updatingCurrentChild model name =
+  let newState = { model.CurrentEditor with EditingChildName = name }
+  updateEditorState model newState
+
+let updatingCurrentItem model child item =
+  let newState = { model.CurrentEditor with CurrentItem = Some (child, item) }
+  updateEditorState model newState
+
+let endedUpdatingItem model =
+  let newState = { model.CurrentEditor with CurrentItem = None }
+  updateEditorState model newState
 
 let clearCurrentChild model =
-  { model with CurrentEntry = Child "" }
-
-let clearCurrentItem model =
-  match model.CurrentEntry with
-  | Item (c, _) -> { model with CurrentEntry = Item (c, "") }
-  | _ -> model
+  let newState = { model.CurrentEditor with EditingChildName = "" }
+  updateEditorState model newState
 
 let addedChild model =
   let newModel =
-    match model.CurrentEntry with
-    | CurrentEntry.Child name -> Domain.addChild model { Name = name; NaughtyOrNice = Undecided }
-    | _ -> model
+    Domain.addChild model { Name = model.CurrentEditor.EditingChildName; NaughtyOrNice = Undecided }
+
   clearCurrentChild newModel
+
+let clearCurrentItem model =
+  let newItem =
+    model.CurrentEditor.CurrentItem
+    |> Option.map (fun (child, _) -> child, "")
+
+  let newState = { model.CurrentEditor with CurrentItem = newItem }
+  updateEditorState model newState
 
 let addedItem model =
   let newModel =
-    match model.CurrentEntry with
-    | CurrentEntry.Item (child, item) -> Domain.addItem model child { Description = item }
+    match model.CurrentEditor.CurrentItem with
+    | Some (child, item) -> Domain.addItem model child { Description = item }
     | _ -> model
   clearCurrentItem newModel
 
 let reviewedChild model child naughtyOrNice =
   Domain.reviewChild model child naughtyOrNice
-  |> clearCurrentChild
 
 let update msg model : Model * Cmd<Msg> =
   match msg with
-  | UpdatingCurrent entry ->
-    updatingCurrent model entry, []
+  | UpdatingChild name ->
+    updatingCurrentChild model name, []
+  | UpdatingItem (child, item) ->
+    updatingCurrentItem model child item, []
+  | EndedUpdatingItem ->
+    endedUpdatingItem model, []
   | AddedChild ->
     addedChild model, []
   | AddedItem ->

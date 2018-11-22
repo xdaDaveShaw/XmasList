@@ -19,19 +19,21 @@ type SantasItem = {
   Quantity: int
 }
 
-type CurrentEntry =
-  | Nothing
-  | Child of string
-  | Item of Child * string
+type CurrentEditorState = {
+  EditingChildName: string
+  CurrentItem: (Child * string) option
+}
 
 type Model = {
-  CurrentEntry: CurrentEntry
+  CurrentEditor: CurrentEditorState
   ChildrensList: Child list
   SantasList: SantasItem list
 }
 
 type Msg =
-  | UpdatingCurrent of CurrentEntry
+  | UpdatingChild of string
+  | UpdatingItem of Child * string
+  | EndedUpdatingItem
   | AddedChild
   | AddedItem
   | ReviewedChild of Child * NaughtyOrNice
