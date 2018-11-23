@@ -23,3 +23,6 @@ Running Tests for developing
 
 `build.cmd` / `build.sh`
 
+# Live Site
+
+https://s3-eu-west-1.amazonaws.com/xmaslist/index.html
