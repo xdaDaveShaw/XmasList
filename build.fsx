@@ -13,10 +13,6 @@ open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.JavaScript
 
-let CWD = __SOURCE_DIRECTORY__
-
-let srcDir = CWD </> "src"
-
 Target.create "Clean" (fun _ ->
   !! "src/**/bin"
   ++ "src/**/obj"
@@ -26,7 +22,7 @@ let inline withWorkDir wd =
   DotNet.Options.withWorkingDirectory wd
 
 Target.create "Restore" (fun _ ->
-  DotNet.exec (withWorkDir srcDir) "restore" ""
+  DotNet.exec (withWorkDir "./src") "restore" ""
   |> ignore
 )
 
@@ -36,12 +32,12 @@ Target.create "YarnInstall" (fun _ ->
 )
 
 Target.create "Build" (fun _ ->
-  DotNet.exec (withWorkDir srcDir) "fable" "yarn-run build"
+  DotNet.exec (withWorkDir "./src") "fable" "yarn-run build"
   |> ignore
 )
 
 Target.create "TestBuild" (fun _ ->
-  DotNet.exec (withWorkDir srcDir) "fable" "yarn-run test-build"
+  DotNet.exec (withWorkDir "./src") "fable" "yarn-run test-build"
   |> ignore
 )
 
