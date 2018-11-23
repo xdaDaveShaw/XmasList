@@ -5,7 +5,7 @@ function resolve(relativePath) {
 }
 
 module.exports = {
-    entry: resolve("XmasList.tests.fsproj"),
+    entry: resolve("XmasList.Tests.fsproj"),
     outDir: resolve("output"),
     babel: {
         "plugins": ["@babel/plugin-transform-modules-commonjs"]
