@@ -48,7 +48,14 @@ let addedItem model =
   clearCurrentItem newModel
 
 let reviewedChild child naughtyOrNice model =
-  Domain.reviewChild child naughtyOrNice model
+  let newModel = Domain.reviewChild child naughtyOrNice model
+
+  let msg =
+    match naughtyOrNice with
+    | Nice _ -> Cmd.ofMsg (UpdatingItem (child, ""))
+    | _ -> Cmd.none
+
+  newModel, msg
 
 let update msg model : Model * Cmd<Msg> =
   match msg with
@@ -63,4 +70,4 @@ let update msg model : Model * Cmd<Msg> =
   | AddedItem ->
     addedItem model, []
   | ReviewedChild (child, naughtyOrNice) ->
-    reviewedChild child naughtyOrNice model, []
+    reviewedChild child naughtyOrNice model
