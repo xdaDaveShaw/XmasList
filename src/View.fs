@@ -18,7 +18,6 @@ let onEnter dispatch msg =
 type InputAndButton<'a> = {
   Dispatch: Msg -> unit
   InputValue: string
-  ButtonText: string
   PlaceholderText: string
   OnChange: 'a -> unit
   OnCommitMsg: Msg
@@ -26,7 +25,7 @@ type InputAndButton<'a> = {
   AutoFocus: bool
 }
 
-let createInputButtonCombo inputAndButton =
+let createInput inputAndButton =
   Field.div [ Field.HasAddons ] [
     Input.text [
       Input.Placeholder inputAndButton.PlaceholderText
@@ -38,10 +37,6 @@ let createInputButtonCombo inputAndButton =
       ] @ inputAndButton.AdditionalInputProps)
       Input.Value inputAndButton.InputValue
     ]
-    Button.button [
-      Button.Color Color.IsSuccess
-      Button.OnClick (fun _ -> inputAndButton.Dispatch inputAndButton.OnCommitMsg)
-    ] [ str inputAndButton.ButtonText ]
   ]
 
 let createAddNewItemControl dispatch child item =
@@ -52,10 +47,9 @@ let createAddNewItemControl dispatch child item =
   let onBlur =
     (Props.OnBlur (fun _ -> dispatch EndedUpdatingItem))
 
-  createInputButtonCombo
+  createInput
     { Dispatch = dispatch
       InputValue = item
-      ButtonText = "add item"
       PlaceholderText = "Enter item name"
       OnChange = updateCurrent
       OnCommitMsg = AddedItem
@@ -167,10 +161,9 @@ let renderAddChild dispatch model =
         Heading.h5 [ Heading.IsSubtitle ] [ str "Add some children to get started"]
 
     yield
-      createInputButtonCombo
+      createInput
         { Dispatch = dispatch
           InputValue = model.CurrentEditor.EditingChildName
-          ButtonText = "add"
           PlaceholderText = "Enter child's name"
           OnChange = updatingCurrent
           OnCommitMsg = AddedChild
