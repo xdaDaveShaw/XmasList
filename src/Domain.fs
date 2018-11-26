@@ -11,6 +11,9 @@ type private AddItemToChild = Child -> Item -> Child * bool
 type private UpdateChild = Child list -> Child -> Child list
 type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
 
+let private equalCI a b =
+  System.String.Equals(a, b, System.StringComparison.CurrentCultureIgnoreCase)
+
 let private canAddChild name children =
   not (System.String.IsNullOrEmpty(name))
   &&
@@ -29,7 +32,7 @@ let private canAddItem newItem items =
   not (System.String.IsNullOrEmpty(newItem.Description))
   &&
   items
-  |> List.tryFind (fun i -> i.Description = newItem.Description)
+  |> List.tryFind (fun i -> equalCI i.Description newItem.Description)
   |> Option.isNone
 
 let private addItemToChild : AddItemToChild =
@@ -50,21 +53,21 @@ let private updateChild : UpdateChild =
     |> List.map update
 
 let private addItemToSantasList : UpdateSantasList =
-  fun xs item ->
+  fun santasItems item ->
 
     let existingItem =
-      xs
-      |> List.tryFind (fun i -> i.ItemName = item.Description)
+      santasItems
+      |> List.tryFind (fun i -> equalCI i.ItemName item.Description)
 
     match existingItem with
-    | None -> xs @ [ { ItemName = item.Description; Quantity = 1 } ]
+    | None -> santasItems @ [ { ItemName = item.Description; Quantity = 1 } ]
     | Some existing ->
       let update i =
-        if i.ItemName = existing.ItemName then
+        if i = existing then
           { i with Quantity = i.Quantity + 1 }
         else
           i
-      xs
+      santasItems
       |> List.map update
 
 let private findExistingChild model name =

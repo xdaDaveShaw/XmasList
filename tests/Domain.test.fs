@@ -139,7 +139,6 @@ test "Can add duplicate item to different child" <| fun () ->
 
 
 test "Adding subsequent items to a child" <| fun () ->
-
   let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
   let model = { defaultModel with ChildrensList = [ child ] }
 
@@ -161,4 +160,46 @@ test "Adding subsequent items to a child" <| fun () ->
   ]
   let actualSanta = newModel.SantasList
   actualChild == expectedChild
+  actualSanta == expectedSanta
+
+
+test "Adding duplicate casing of items items to a child" <| fun () ->
+  let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
+  let model = { defaultModel with ChildrensList = [ child ] }
+
+  let item1 = { Description = "Book" }
+  let item2 = { Description = "book" }
+
+  let newModel =
+    Domain.addItem "Dave" item1 model
+    |> Domain.addItem "Dave" item2
+
+  let expectedChild = { child with NaughtyOrNice = Nice [ item1; ] }
+  let actualChild = newModel.ChildrensList |> List.head
+  let expectedSanta = [
+    { ItemName = "Book"; Quantity = 1 }
+  ]
+  let actualSanta = newModel.SantasList
+  actualChild == expectedChild
+  actualSanta == expectedSanta
+
+test "Adding duplicate casing of items items to different children" <| fun () ->
+  let child1 = { Name = "Dave"; NaughtyOrNice = Nice [] }
+  let child2 = { Name = "Shaw"; NaughtyOrNice = Nice [] }
+  let model = { defaultModel with ChildrensList = [ child1; child2 ] }
+  let item1 = { Description = "Book" }
+  let item2 = { Description = "book" }
+
+  let newModel =
+    Domain.addItem "Dave" item1 model
+    |> Domain.addItem "Shaw" item2
+
+  let expectedChildren = [
+    { child1 with NaughtyOrNice = Nice [ item1 ] }
+    { child2 with NaughtyOrNice = Nice [ item2 ] }
+  ]
+  let actualChildren = newModel.ChildrensList
+  let expectedSanta = [ { ItemName = "Book"; Quantity = 2 } ]
+  let actualSanta = newModel.SantasList
+  actualChildren == expectedChildren
   actualSanta == expectedSanta
