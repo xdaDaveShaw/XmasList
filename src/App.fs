@@ -16,5 +16,5 @@ Program.mkProgram init update root
 #if DEBUG
 |> Program.withDebugger
 #endif
-|> Program.withReact "elmish-app"
+|> Program.withReactUnoptimized "elmish-app"
 |> Program.run
