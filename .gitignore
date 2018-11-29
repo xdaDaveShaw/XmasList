@@ -197,3 +197,4 @@ docs/tools/FSharp.Formatting.svclog
 project.lock.json
 tests/output
 junit.xml
+deploy/

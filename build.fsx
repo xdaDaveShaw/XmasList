@@ -32,12 +32,12 @@ Target.create "YarnInstall" (fun _ ->
 )
 
 Target.create "Build" (fun _ ->
-  DotNet.exec (withWorkDir "./src") "fable" "yarn-run build"
+  Yarn.exec "run build" (fun opts -> opts)
   |> ignore
 )
 
 Target.create "TestBuild" (fun _ ->
-  DotNet.exec (withWorkDir "./src") "fable" "yarn-run test-build"
+  Yarn.exec "run test-build" (fun opts -> opts)
   |> ignore
 )
 

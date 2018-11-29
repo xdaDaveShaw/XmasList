@@ -10,17 +10,14 @@
   "tasks": [
     {
       "label": "Start",
-      "args": [
-        "fable",
-        "yarn-run",
-        "start"
-      ],
-      "command": "dotnet",
+      "args": [ "run", "start" ],
+      "command": "yarn",
       "isBackground": true,
       "group": {
         "kind": "build",
         "isDefault": true
       },
+      "type": "shell",
       "problemMatcher": {
         "fileLocation": "absolute",
         "background": {
@@ -47,14 +44,12 @@
     {
       "label": "Watch",
       "args": [
-        "fable",
-        "yarn-run",
         "test-buildwatch"
       ],
-      "command": "dotnet",
+      "command": "yarn",
       "isBackground": true,
       "group": "none",
-      "type": "process",
+      "type": "shell",
       "problemMatcher": {
         "fileLocation": "absolute",
         "background": {
@@ -81,7 +76,6 @@
     {
       "label": "Test",
       "args": [
-        "run",
         "test-watch"
       ],
       "command": "yarn",
