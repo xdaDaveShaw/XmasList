@@ -42,7 +42,7 @@
       }
     },
     {
-      "label": "Watch",
+      "label": "Build Tests",
       "args": [
         "test-buildwatch"
       ],
@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "Test",
+      "label": "Run Tests",
       "args": [
         "test-watch"
       ],
