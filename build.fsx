@@ -26,6 +26,12 @@ Target.create "Restore" (fun _ ->
   |> ignore
 )
 
+Target.create "Hack" (fun _ ->
+  let home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile)
+  let matcher = System.IO.Path.Combine(home, ".nuget", "packages", "fable.import.jest", "1.9.0", "fable", "Matchers.fs")
+  System.IO.File.Copy("./hack/Matchers.fs", matcher, true)
+)
+
 Target.create "YarnInstall" (fun _ ->
   Yarn.install (fun opts -> opts)
   |> ignore
@@ -50,6 +56,7 @@ Target.create "All" ignore
 
 "Clean"
   ==> "Restore"
+  ==> "Hack"
   ==> "YarnInstall"
   ==> "Build"
   ==> "TestBuild"
