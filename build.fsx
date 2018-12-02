@@ -42,13 +42,18 @@ Target.create "Build" (fun _ ->
   |> ignore
 )
 
-Target.create "TestBuild" (fun _ ->
+Target.create "TestBuild-Jest" (fun _ ->
   Yarn.exec "run test-build" (fun opts -> opts)
   |> ignore
 )
 
-Target.create "Test" (fun _ ->
+Target.create "Test-Jest" (fun _ ->
   Yarn.exec "run test" (fun opts -> opts)
+  |> ignore
+)
+
+Target.create "Test-dotnet" (fun _ ->
+  DotNet.exec (withWorkDir "./tests") "run" "--project XmasList.tests.fsproj"
   |> ignore
 )
 
@@ -59,8 +64,9 @@ Target.create "All" ignore
   ==> "Hack"
   ==> "YarnInstall"
   ==> "Build"
-  ==> "TestBuild"
-  ==> "Test"
+  ==> "TestBuild-Jest"
+  ==> "Test-Jest"
+  ==> "Test-dotnet"
   ==> "All"
 
 Target.runOrDefault "All"

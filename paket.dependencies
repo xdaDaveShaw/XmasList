@@ -12,6 +12,7 @@ nuget Fable.Elmish.Debugger
 nuget Fulma
 
 nuget Fable.Import.Jest
+nuget Expecto
 
 // [ FAKE GROUP ]
 group Build
