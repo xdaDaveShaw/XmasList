@@ -203,3 +203,35 @@ test "Adding duplicate casing of items items to different children" <| fun () ->
   let actualSanta = newModel.SantasList
   actualChildren == expectedChildren
   actualSanta == expectedSanta
+
+test "Ensure leading/trailing whitespace is removed on items" <| fun () ->
+  let child1 = { Name = "Dave"; NaughtyOrNice = Nice [] }
+  let child2 = { Name = "Shaw"; NaughtyOrNice = Nice [] }
+  let model = { defaultModel with ChildrensList = [ child1; child2 ] }
+  let item1 = { Description = " book" }
+  let item2 = { Description = "book " }
+
+  let newModel =
+    Domain.addItem "Dave" item1 model
+    |> Domain.addItem "Shaw" item2
+
+  let expectedItem = { Description = "book" }
+
+  let expectedChildren = [
+    { child1 with NaughtyOrNice = Nice [ expectedItem ] }
+    { child2 with NaughtyOrNice = Nice [ expectedItem ] }
+  ]
+  let actualChildren = newModel.ChildrensList
+  let expectedSanta = [ { ItemName = expectedItem.Description; Quantity = 2 } ]
+  let actualSanta = newModel.SantasList
+  actualChildren == expectedChildren
+  actualSanta == expectedSanta
+
+test "Ensure leading/trailing whitespace is removed on items" <| fun () ->
+  let modelAfter1 = Domain.addChild " Dave" defaultModel
+  let modelAfter2 = Domain.addChild "Dave " modelAfter1
+
+  let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Undecided } ]
+
+  modelAfter1 == modelAfter2
+  modelAfter2.ChildrensList == expectedChildren

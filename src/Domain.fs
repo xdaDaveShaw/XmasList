@@ -23,6 +23,9 @@ let private canAddChild name children =
 
 let addChild : AddChild =
   fun child model ->
+
+    let child = child.Trim()
+
     if canAddChild child model.ChildrensList then
       { model with ChildrensList = model.ChildrensList @ [ { Name = child; NaughtyOrNice = Undecided; } ] }
     else
@@ -35,8 +38,14 @@ let private canAddItem newItem items =
   |> List.tryFind (fun i -> equalCI i.Description newItem.Description)
   |> Option.isNone
 
+let private sanatiseItem item =
+  { item with Description = item.Description.Trim() }
+
 let private addItemToChild : AddItemToChild =
   fun child item ->
+
+    let item = sanatiseItem item
+
     match child.NaughtyOrNice with
     | Nice items when canAddItem item items ->
       { child with NaughtyOrNice = Nice (items @ [ item ]) }, true
@@ -54,6 +63,8 @@ let private updateChild : UpdateChild =
 
 let private addItemToSantasList : UpdateSantasList =
   fun santasItems item ->
+
+    let item = sanatiseItem item
 
     let existingItem =
       santasItems
