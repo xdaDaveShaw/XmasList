@@ -4,11 +4,11 @@ module Util
 open Fable.Import.Jest
 open Fable.Import.Jest.Matchers
 
-let tests (name: string) (tests: (string * obj) seq) =
+let testList (name: string) (tests: (string * obj) seq) =
   name, tests
 
-let test (name: string) (test: unit -> unit) =
-  name, box test
+let testCase (msg: string) (test: unit->unit) =
+  msg, box test
 
 let (==) =
   (==)
@@ -16,10 +16,10 @@ let (==) =
 #else
 open Expecto
 
-let tests (name: string) (tests : Test list) =
+let testList (name: string) (tests : Test list) =
   testList name tests
 
-let test (name: string) (test: unit -> unit) : Test =
+let testCase (name: string) (test: unit -> unit) : Test =
   testCase name test
 
 let (==) x y =

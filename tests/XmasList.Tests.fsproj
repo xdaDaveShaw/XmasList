@@ -8,8 +8,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Util.fs" />
-    <Compile Include="Domain.test.fs" />
-    <!-- <Compile Include="Main.fs" /> -->
+    <Compile Include="DomainTests.fs" />
+    <!-- Only "Main" should have *.test.js All other Test Suites should be called **Test.fs -->
+    <Compile Include="Main.test.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

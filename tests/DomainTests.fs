@@ -8,9 +8,8 @@ let private defaultModel =
   fst (State.init())
 
 let testCases =
-  tests "Domain Tests" [
-
-    test "Adding children works" <| fun () ->
+  [
+    testCase "Adding children works" <| fun () ->
       let child1 = "Dave"
       let child2 = "Shaw"
 
@@ -26,19 +25,19 @@ let testCases =
       newModel.ChildrensList == expected
 
 
-    test "Cannot add child with no name" <| fun () ->
+    testCase "Cannot add child with no name" <| fun () ->
       let child = ""
       let newModel = Domain.addChild child defaultModel
 
       defaultModel == newModel
 
-    test "Cannot add child twice" <| fun () ->
+    testCase "Cannot add child twice" <| fun () ->
       let modelAfter1 = Domain.addChild "Dave" defaultModel
       let modelAfter2 = Domain.addChild "Dave" modelAfter1
 
       modelAfter1 == modelAfter2
 
-    test "Reviewing a nice child" <| fun () ->
+    testCase "Reviewing a nice child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Undecided }
       let model = { defaultModel with ChildrensList = [ child ] }
 
@@ -48,7 +47,7 @@ let testCases =
       let actual = newModel.ChildrensList |> List.head
       actual == expected
 
-    test "Reviewing a naughty child" <| fun () ->
+    testCase "Reviewing a naughty child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Undecided }
       let model = { defaultModel with ChildrensList = [ child ] }
 
@@ -58,7 +57,7 @@ let testCases =
       let actual = newModel.ChildrensList |> List.head
       actual == expected
 
-    test "Cannot add item to naughty child" <| fun () ->
+    testCase "Cannot add item to naughty child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Naughty }
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
@@ -67,7 +66,7 @@ let testCases =
 
       model == newModel
 
-    test "Cannot add item to undecided child" <| fun () ->
+    testCase "Cannot add item to undecided child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Undecided }
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
@@ -76,7 +75,7 @@ let testCases =
 
       model == newModel
 
-    test "Adding first item to a child" <| fun () ->
+    testCase "Adding first item to a child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
@@ -90,7 +89,7 @@ let testCases =
       actualChild == expectedChild
       actualSanta == [ expectedSanta ]
 
-    test "Cannot add item with no name to a child" <| fun () ->
+    testCase "Cannot add item with no name to a child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "" }
@@ -104,7 +103,7 @@ let testCases =
       actualSanta == []
 
 
-    test "Cannot add duplicate item to same child" <| fun () ->
+    testCase "Cannot add duplicate item to same child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
@@ -120,7 +119,7 @@ let testCases =
       actualChildren == expectedChild
       actualSanta == expectedSanta
 
-    test "Can add duplicate item to different child" <| fun () ->
+    testCase "Can add duplicate item to different child" <| fun () ->
       let child1 = { Name = "Dave"; NaughtyOrNice = Nice [] }
       let child2 = { Name = "Shaw"; NaughtyOrNice = Nice [] }
       let model = { defaultModel with ChildrensList = [ child1; child2 ] }
@@ -141,7 +140,7 @@ let testCases =
       actualSanta == expectedSanta
 
 
-    test "Adding subsequent items to a child" <| fun () ->
+    testCase "Adding subsequent items to a child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
       let model = { defaultModel with ChildrensList = [ child ] }
 
@@ -166,7 +165,7 @@ let testCases =
       actualSanta == expectedSanta
 
 
-    test "Adding duplicate casing of items items to a child" <| fun () ->
+    testCase "Adding duplicate casing of items items to a child" <| fun () ->
       let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
       let model = { defaultModel with ChildrensList = [ child ] }
 
@@ -186,7 +185,7 @@ let testCases =
       actualChild == expectedChild
       actualSanta == expectedSanta
 
-    test "Adding duplicate casing of items items to different children" <| fun () ->
+    testCase "Adding duplicate casing of items items to different children" <| fun () ->
       let child1 = { Name = "Dave"; NaughtyOrNice = Nice [] }
       let child2 = { Name = "Shaw"; NaughtyOrNice = Nice [] }
       let model = { defaultModel with ChildrensList = [ child1; child2 ] }
@@ -207,7 +206,7 @@ let testCases =
       actualChildren == expectedChildren
       actualSanta == expectedSanta
 
-    test "Ensure leading/trailing whitespace is removed on items" <| fun () ->
+    testCase "Ensure leading/trailing whitespace is removed on items" <| fun () ->
       let child1 = { Name = "Dave"; NaughtyOrNice = Nice [] }
       let child2 = { Name = "Shaw"; NaughtyOrNice = Nice [] }
       let model = { defaultModel with ChildrensList = [ child1; child2 ] }
@@ -230,7 +229,7 @@ let testCases =
       actualChildren == expectedChildren
       actualSanta == expectedSanta
 
-    test "Ensure leading/trailing whitespace is removed on children" <| fun () ->
+    testCase "Ensure leading/trailing whitespace is removed on children" <| fun () ->
       let modelAfter1 = Domain.addChild " Dave" defaultModel
       let modelAfter2 = Domain.addChild "Dave " modelAfter1
 
@@ -238,36 +237,7 @@ let testCases =
 
       modelAfter1 == modelAfter2
       modelAfter2.ChildrensList == expectedChildren
-    ]
-
-let allTests =
-  [
-    testCases
   ]
 
-#if FABLE_COMPILER
-open Fable.Core
-open Fable.Core.JsInterop
-
-let [<Global>] describe (name: string) (f: unit->unit) = jsNative
-let [<Global>] it (msg: string) (f: unit->unit) = jsNative
-
-let run () =
-    for (name, tests) in allTests do
-        describe name (fun () ->
-            for (msg, test) in tests do
-                it msg (unbox test))
-run()
-#else
-
-open Expecto
-
-[<EntryPoint>]
-let main args =
-  let writeResults = Expecto.TestResults.writeNUnitSummary ("../nunit.xml", "XmasList.Tests")
-  let config = defaultConfig.appendSummaryHandler writeResults
-
-  allTests
-  |> testList "All"
-  |> runTestsWithArgs config args
-#endif
+let tests =
+  testList "Domain Tests" (testCases)
