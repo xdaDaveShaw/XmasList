@@ -1,9 +1,7 @@
-module XmasList.Tests
+module XmasListTests
 
+open XmasList
 open XmasList.Types
-
-let defaultModel =
-  fst (XmasList.State.init())
 
 #if FABLE_COMPILER
 open Fable.Import.Jest
@@ -12,10 +10,9 @@ open Fable.Import.Jest.Matchers
 let tests (name: string) (tests: (string * obj) seq) =
   name, tests
 
-let test (name: string) (test: unit -> unit) : Test =
+let test (name: string) (test: unit -> unit) =
   name, box test
 
-let (==) = (==)
 #else
 open Expecto
 
@@ -29,8 +26,10 @@ let (==) x y =
   Expect.equal y x ""
 
 #endif
+let private defaultModel =
+  fst (XmasList.State.init())
 
-let domainTests =
+let testCases =
   tests "Domain Tests" [
 
     test "Adding children works" <| fun () ->
@@ -262,3 +261,32 @@ let domainTests =
       modelAfter1 == modelAfter2
       modelAfter2.ChildrensList == expectedChildren
     ]
+
+let allTests =
+  [
+    testCases
+  ]
+
+#if FABLE_COMPILER
+open Fable.Core
+open Fable.Core.JsInterop
+
+let [<Global>] describe (name: string) (f: unit->unit) = jsNative
+let [<Global>] it (msg: string) (f: unit->unit) = jsNative
+
+let run () =
+    for (name, tests) in allTests do
+        describe name (fun () ->
+            for (msg, test) in tests do
+                it msg (unbox test))
+run()
+#else
+
+open Expecto
+
+[<EntryPoint>]
+let main args =
+  allTests
+  |> testList "All"
+  |> runTestsWithArgs defaultConfig args
+#endif

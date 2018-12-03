@@ -16,6 +16,7 @@ open Fake.JavaScript
 Target.create "Clean" (fun _ ->
   !! "src/**/bin"
   ++ "src/**/obj"
+  ++ "tests/output"
   |> Shell.cleanDirs
 )
 let inline withWorkDir wd =
