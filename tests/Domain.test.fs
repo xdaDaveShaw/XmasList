@@ -286,7 +286,10 @@ open Expecto
 
 [<EntryPoint>]
 let main args =
+  let writeResults = Expecto.TestResults.writeNUnitSummary ("../nunit.xml", "XmasList.Tests")
+  let config = defaultConfig.appendSummaryHandler writeResults
+
   allTests
   |> testList "All"
-  |> runTestsWithArgs defaultConfig args
+  |> runTestsWithArgs config args
 #endif

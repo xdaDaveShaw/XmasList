@@ -196,5 +196,5 @@ docs/tools/FSharp.Formatting.svclog
 *.bak
 project.lock.json
 tests/output
-junit.xml
+[jn]unit.xml
 deploy/
