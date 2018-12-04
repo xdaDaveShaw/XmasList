@@ -24,6 +24,9 @@ let private canAddChild name children =
 let addChild : AddChild =
   fun child model ->
 
+    let event = EventStore.AddedChild child
+    EventStore.storeEvent event
+
     let child = child.Trim()
 
     if canAddChild child model.ChildrensList then
@@ -88,6 +91,9 @@ let private findExistingChild model name =
 let addItem : AddItem =
   fun child item model ->
 
+    let event = EventStore.AddedItem (child, item.Description)
+    EventStore.storeEvent event
+
     let existingChild = findExistingChild model child
 
     let newChild, success = addItemToChild existingChild item
@@ -105,8 +111,16 @@ let addItem : AddItem =
         ChildrensList = newChildList
         SantasList = newSantaList }
 
+let private nonToString = function
+  | Undecided -> "Undecided"
+  | Nice _ -> "Nice"
+  | Naughty -> "Naughty"
+
 let reviewChild : ReviewChild =
   fun child non model ->
+
+    let event = EventStore.ReviewedChild (child, non |> nonToString)
+    EventStore.storeEvent event
 
     let existingChild = findExistingChild model child
 
