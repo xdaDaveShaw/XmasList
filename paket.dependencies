@@ -13,6 +13,7 @@ nuget Fulma
 
 nuget Fable.Import.Jest
 nuget Expecto
+nuget Expecto.TestResults
 
 // [ FAKE GROUP ]
 group Build

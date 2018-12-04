@@ -54,7 +54,7 @@ Target.create "Test-Jest" (fun _ ->
 )
 
 Target.create "Test-dotnet" (fun _ ->
-  DotNet.exec (withWorkDir "./tests") "run" "--project XmasList.tests.fsproj"
+  DotNet.exec (withWorkDir "./tests") "run" "--project XmasList.Tests.fsproj"
   |> ignore
 )
 
