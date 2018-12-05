@@ -248,6 +248,38 @@ let testCases =
 
       modelAfter1 == modelAfter2
       modelAfter2.ChildrensList == expectedChildren
+
+    testCase "Add child returns correct event" <| fun () ->
+      let _, event =
+        Domain.addChild "Dave" defaultModel
+
+      event == EventStore.AddedChild "Dave"
+
+    testCase "Add item returns correct event" <| fun () ->
+      let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
+      let model = { defaultModel with ChildrensList = [ child ] }
+      let item = { Description = "Book" }
+
+      let _, event = Domain.addItem "Dave" item model
+
+      event == EventStore.AddedItem ("Dave", "Book")
+
+    testCase "Reviewing child returns correct event" <| fun () ->
+      let model =
+        addChild "Dave" defaultModel
+        |> addChild "Shaw"
+        |> addChild "More"
+
+      let _, niceEvent =
+        Domain.reviewChild "Dave" (Nice []) model
+      let _, naughtyEvent =
+        Domain.reviewChild "Shaw" (Naughty) model
+      let _, undecidedEvent =
+        Domain.reviewChild "More" (Undecided) model
+
+      niceEvent == EventStore.ReviewedChild ("Dave", "Nice")
+      naughtyEvent == EventStore.ReviewedChild ("Shaw", "Naughty")
+      undecidedEvent == EventStore.ReviewedChild ("More", "Undecided")
   ]
 
 let tests =
