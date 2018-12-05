@@ -10,6 +10,8 @@ nuget Fable.Elmish.React
 nuget Fable.Elmish.Browser
 nuget Fable.Elmish.Debugger
 nuget Fulma
+nuget Fable.FontAwesome
+nuget Fable.FontAwesome.Free
 
 nuget Fable.Import.Jest
 nuget Expecto
