@@ -70,6 +70,16 @@ let reviewedChild child naughtyOrNice model =
 
   newModel, msg
 
+let updateClearingStorage clearing model =
+  let newEditor = { model.CurrentEditor with ClearingStorage = clearing }
+  { model with CurrentEditor = newEditor }
+
+let beginClearStorage model =
+  model |> updateClearingStorage true
+
+let endClearStorage model =
+  model |> updateClearingStorage false
+
 let update msg model : Model * Cmd<Msg> =
   match msg with
   | UpdatingChild name ->
@@ -84,3 +94,10 @@ let update msg model : Model * Cmd<Msg> =
     addedItem model
   | ReviewedChild (child, naughtyOrNice) ->
     reviewedChild child naughtyOrNice model
+  | BeginClearStorage ->
+    beginClearStorage model, []
+  | PerformClearStorage ->
+    EventStore.clearStorage()
+    Domain.defaultModel, Cmd.ofMsg EndClearStorage
+  | EndClearStorage ->
+    endClearStorage model, []

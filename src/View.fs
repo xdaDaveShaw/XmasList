@@ -189,6 +189,27 @@ let renderSantasList list =
       ul [ ] items
     ]
 
+let renderClearStorage dispatch currentEditor =
+
+  let createButton text icon color msg =
+    Button.button [
+      Button.OnClick (fun _ -> dispatch msg)
+      Button.Color color
+    ] [
+      FontAwesome.Icon.faIcon [] [ FontAwesome.Fa.icon icon ]
+      span [] [ str (sprintf " %s" text) ]
+    ]
+
+  let buttons =
+    if (currentEditor.ClearingStorage) then
+      [ createButton "Clear all data" FontAwesome.Fa.I.ExclamationCircle Color.IsSuccess PerformClearStorage
+        createButton "Don't clear" FontAwesome.Fa.I.TimesCircle Color.IsDanger EndClearStorage ]
+    else
+      [ createButton "Clear" FontAwesome.Fa.I.Times Color.NoColor BeginClearStorage ]
+
+  Content.content [ ] [
+    Button.list [ ] buttons ]
+
 let root model dispatch =
   div [ ] [
 
@@ -209,5 +230,6 @@ let root model dispatch =
       renderAddChild dispatch model
       renderChildList dispatch model
       renderSantasList model.SantasList
+      renderClearStorage dispatch model.CurrentEditor
     ]
   ]

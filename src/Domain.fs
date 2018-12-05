@@ -14,7 +14,7 @@ type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
 
 let defaultModel =
   { ChildrensList = []
-    CurrentEditor = { EditingChildName = ""; CurrentItem = None }
+    CurrentEditor = { EditingChildName = ""; CurrentItem = None; ClearingStorage = false; }
     SantasList = [] }
 
 let private equalCI a b =
