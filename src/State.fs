@@ -3,10 +3,17 @@ module XmasList.State
 open Elmish
 open Types
 
+
+let defaultEditorState =
+    { EditingChildName = ""; CurrentItem = None; ClearingStorage = false; }
+
+let emptyModel =
+  Domain.createDefaultModel defaultEditorState
+
 let init () : Model * Cmd<Msg> =
 
   let events = EventStore.loadEvents()
-  let model = Domain.fromEvents events
+  let model = Domain.fromEvents defaultEditorState events
 
   model, []
 
@@ -98,6 +105,6 @@ let update msg model : Model * Cmd<Msg> =
     beginClearStorage model, []
   | PerformClearStorage ->
     EventStore.clearStorage()
-    Domain.defaultModel, Cmd.ofMsg EndClearStorage
+    emptyModel, Cmd.ofMsg EndClearStorage
   | EndClearStorage ->
     endClearStorage model, []

@@ -5,7 +5,10 @@ open XmasList.Types
 open Util
 
 let private defaultModel =
-  Domain.defaultModel
+  let editorState =
+    { EditingChildName = ""; CurrentItem = None; ClearingStorage = false; }
+
+  Domain.createDefaultModel editorState
 
 let private addItem n i m =
   let r, _ = Domain.addItem n i m
@@ -18,6 +21,9 @@ let private addChild n m =
 let private reviewChild n non m =
   let r, _ = Domain.reviewChild n non m
   r
+
+let fromEvents es =
+  Domain.fromEvents defaultModel.CurrentEditor es
 
 let testCases =
   [
@@ -283,7 +289,7 @@ let testCases =
 
     testCase "Loading from no events" <| fun () ->
       let events = []
-      let model = Domain.fromEvents events
+      let model = fromEvents events
 
       let expectedModel = defaultModel
 
@@ -291,7 +297,7 @@ let testCases =
 
     testCase "Loading from Added Child Event" <| fun () ->
       let events = [ EventStore.AddedChild "Dave" ]
-      let model = Domain.fromEvents events
+      let model = fromEvents events
 
       let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Undecided; } ]
       let expectedSanta = []
@@ -304,7 +310,7 @@ let testCases =
       let events = [
         EventStore.AddedChild "Dave"
         EventStore.ReviewedChild ("Dave", "Nice") ]
-      let model = Domain.fromEvents events
+      let model = fromEvents events
 
       let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Nice []; } ]
       let expectedSanta = []
@@ -317,7 +323,7 @@ let testCases =
       let events = [
         EventStore.AddedChild "Dave"
         EventStore.ReviewedChild ("Dave", "Naughty") ]
-      let model = Domain.fromEvents events
+      let model = fromEvents events
 
       let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Naughty; } ]
       let expectedSanta = []
@@ -332,7 +338,7 @@ let testCases =
         EventStore.ReviewedChild ("Dave", "Nice")
         EventStore.AddedItem ("Dave", "Book")
         EventStore.AddedItem ("Dave", "Hat") ]
-      let model = Domain.fromEvents events
+      let model = fromEvents events
 
       let expectedChildren = [
         { Name = "Dave";
@@ -358,7 +364,7 @@ let testCases =
         EventStore.AddedItem ("Shaw", "Book")
         EventStore.AddedItem ("Shaw", "Scarf")
         EventStore.ReviewedChild ("Bob", "Naughty") ]
-      let model = Domain.fromEvents events
+      let model = fromEvents events
 
       let expectedChildren = [
         { Name = "Dave";

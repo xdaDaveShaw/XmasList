@@ -5,16 +5,16 @@ open XmasList.Types
 type AddChild = string -> Model -> Model * EventStore.Event
 type AddItem = string -> Item -> Model -> Model * EventStore.Event
 type ReviewChild = string -> NaughtyOrNice -> Model -> Model * EventStore.Event
-type FromEvents = EventStore.Event list -> Model
+type FromEvents = CurrentEditorState -> EventStore.Event list -> Model
 
 // Private functions for aggreates
 type private AddItemToChild = Child -> Item -> Child * bool
 type private UpdateChild = Child list -> Child -> Child list
 type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
 
-let defaultModel =
+let createDefaultModel editorState =
   { ChildrensList = []
-    CurrentEditor = { EditingChildName = ""; CurrentItem = None; ClearingStorage = false; }
+    CurrentEditor = editorState
     SantasList = [] }
 
 let private equalCI a b =
@@ -145,7 +145,7 @@ let reviewChild : ReviewChild =
     { model with ChildrensList = newChildList }, event
 
 let fromEvents : FromEvents =
-  fun events ->
+  fun editorState events ->
 
     let processEvent m ev =
       let model, _ =
@@ -155,6 +155,9 @@ let fromEvents : FromEvents =
         | EventStore.AddedItem (name, item) -> m |> addItem name { Description = item }
       model
 
+    let model =
+      createDefaultModel editorState
+
     events
-    |> List.fold processEvent defaultModel
+    |> List.fold processEvent model
 
