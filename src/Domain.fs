@@ -5,11 +5,17 @@ open XmasList.Types
 type AddChild = string -> Model -> Model * EventStore.Event
 type AddItem = string -> Item -> Model -> Model * EventStore.Event
 type ReviewChild = string -> NaughtyOrNice -> Model -> Model * EventStore.Event
+type FromEvents = EventStore.Event list -> Model
 
 // Private functions for aggreates
 type private AddItemToChild = Child -> Item -> Child * bool
 type private UpdateChild = Child list -> Child -> Child list
 type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
+
+let defaultModel =
+  { ChildrensList = []
+    CurrentEditor = { EditingChildName = ""; CurrentItem = None }
+    SantasList = [] }
 
 let private equalCI a b =
   System.String.Equals(a, b, System.StringComparison.CurrentCultureIgnoreCase)
@@ -117,6 +123,12 @@ let private nonToString = function
   | Nice _ -> "Nice"
   | Naughty -> "Naughty"
 
+let private stringToNon = function
+  | "Undecided" -> Undecided
+  | "Nice" -> Nice []
+  | "Naughty" -> Naughty
+  | s -> failwith (sprintf "Unknown Naughty Or Nice: %s" s)
+
 let reviewChild : ReviewChild =
   fun child non model ->
 
@@ -131,3 +143,18 @@ let reviewChild : ReviewChild =
       updateChild model.ChildrensList newChild
 
     { model with ChildrensList = newChildList }, event
+
+let fromEvents : FromEvents =
+  fun events ->
+
+    let processEvent m ev =
+      let model, _ =
+        match ev with
+        | EventStore.AddedChild name -> m |> addChild name
+        | EventStore.ReviewedChild (name, non) -> m |> reviewChild name (stringToNon non)
+        | EventStore.AddedItem (name, item) -> m |> addItem name { Description = item }
+      model
+
+    events
+    |> List.fold processEvent defaultModel
+

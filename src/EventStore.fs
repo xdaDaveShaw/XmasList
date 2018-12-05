@@ -1,5 +1,6 @@
 module XmasList.EventStore
 
+open Fable.Core.JsInterop
 open Fable.Import
 
 type Name = string
@@ -13,38 +14,25 @@ type Event =
 
 open Thoth.Json
 
-let private getEventNameAndData = function
-  | AddedChild name ->
-    "addedChild", Encode.object
-      [ "name", Encode.string name ]
-  | AddedItem (childName, itemName) ->
-    "addedItem", Encode.object
-      [ "childName", Encode.string childName
-        "itemName", Encode.string itemName ]
-  | ReviewedChild (childName, review) ->
-    "reviewedChild", Encode.object
-      [ "childName", Encode.string childName
-        "review", Encode.string review ]
-
-let private encodeEvent event =
-  let eventName, data = getEventNameAndData event
-
-  Encode.object
-    [ "eventName", Encode.string eventName
-      "data", data ]
-
 let private backingStore = new ResizeArray<Event>()
 
 let storeEvent event =
   backingStore.Add(event)
 
-  let encodedEvents =
-      backingStore
-      |> Seq.map encodeEvent
-      |> Seq.toList
-
-  let encodedEventList = Encode.list encodedEvents
-
-  let json = Encode.toString 0 encodedEventList
+  let json = Encode.Auto.toString(0, backingStore)
 
   Browser.localStorage.setItem("xmas-list", json)
+
+let decode json =
+  match Decode.Auto.fromString<Event list>(json) with
+  | Ok events -> events
+  | Error _ -> []
+
+let loadEvents() =
+  let events =
+    !!Browser.localStorage.getItem("xmas-list")
+    |> Option.map decode
+    |> Option.defaultValue []
+  backingStore.AddRange(events)
+  events
+

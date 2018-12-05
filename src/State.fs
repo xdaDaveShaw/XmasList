@@ -4,10 +4,11 @@ open Elmish
 open Types
 
 let init () : Model * Cmd<Msg> =
-  { ChildrensList = []
-    CurrentEditor = { EditingChildName = ""; CurrentItem = None }
-    SantasList = [] },
-  []
+
+  let events = EventStore.loadEvents()
+  let model = Domain.fromEvents events
+
+  model, []
 
 let updateEditorState model newState =
   { model with CurrentEditor = newState }

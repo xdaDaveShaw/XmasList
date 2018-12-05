@@ -5,7 +5,7 @@ open XmasList.Types
 open Util
 
 let private defaultModel =
-  fst (State.init())
+  Domain.defaultModel
 
 let private addItem n i m =
   let r, _ = Domain.addItem n i m
@@ -280,6 +280,101 @@ let testCases =
       niceEvent == EventStore.ReviewedChild ("Dave", "Nice")
       naughtyEvent == EventStore.ReviewedChild ("Shaw", "Naughty")
       undecidedEvent == EventStore.ReviewedChild ("More", "Undecided")
+
+    testCase "Loading from no events" <| fun () ->
+      let events = []
+      let model = Domain.fromEvents events
+
+      let expectedModel = defaultModel
+
+      model == expectedModel
+
+    testCase "Loading from Added Child Event" <| fun () ->
+      let events = [ EventStore.AddedChild "Dave" ]
+      let model = Domain.fromEvents events
+
+      let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Undecided; } ]
+      let expectedSanta = []
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
+
+    testCase "Loading from Added Child with Nice Review Event" <| fun () ->
+      let events = [
+        EventStore.AddedChild "Dave"
+        EventStore.ReviewedChild ("Dave", "Nice") ]
+      let model = Domain.fromEvents events
+
+      let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Nice []; } ]
+      let expectedSanta = []
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
+
+    testCase "Loading from Added Child with Naughty Review Event" <| fun () ->
+      let events = [
+        EventStore.AddedChild "Dave"
+        EventStore.ReviewedChild ("Dave", "Naughty") ]
+      let model = Domain.fromEvents events
+
+      let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Naughty; } ]
+      let expectedSanta = []
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
+
+    testCase "Loading from Added Child with Nice Review and Items Events" <| fun () ->
+      let events = [
+        EventStore.AddedChild "Dave"
+        EventStore.ReviewedChild ("Dave", "Nice")
+        EventStore.AddedItem ("Dave", "Book")
+        EventStore.AddedItem ("Dave", "Hat") ]
+      let model = Domain.fromEvents events
+
+      let expectedChildren = [
+        { Name = "Dave";
+          NaughtyOrNice = Nice [ { Description = "Book" }; { Description = "Hat" }]; } ]
+      let expectedSanta = [
+        { ItemName = "Book"; Quantity = 1; }
+        { ItemName = "Hat"; Quantity = 1; } ]
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
+
+    testCase "Loading Integration Test" <| fun () ->
+      let events = [
+        EventStore.AddedChild "Dave"
+        EventStore.ReviewedChild ("Dave", "Nice")
+        EventStore.AddedChild "Shaw"
+        EventStore.AddedChild "Alice"
+        EventStore.AddedChild "Bob"
+        EventStore.AddedItem ("Dave", "Book")
+        EventStore.AddedItem ("Dave", "Hat")
+        EventStore.ReviewedChild ("Shaw", "Nice")
+        EventStore.AddedItem ("Shaw", "Book")
+        EventStore.AddedItem ("Shaw", "Scarf")
+        EventStore.ReviewedChild ("Bob", "Naughty") ]
+      let model = Domain.fromEvents events
+
+      let expectedChildren = [
+        { Name = "Dave";
+          NaughtyOrNice = Nice [ { Description = "Book" }; { Description = "Hat" }]; }
+        { Name = "Shaw";
+          NaughtyOrNice = Nice [ { Description = "Book" }; { Description = "Scarf" }]; }
+        { Name = "Alice"; NaughtyOrNice = Undecided; }
+        { Name = "Bob"; NaughtyOrNice = Naughty; } ]
+      let expectedSanta = [
+        { ItemName = "Book"; Quantity = 2; }
+        { ItemName = "Hat"; Quantity = 1; }
+        { ItemName = "Scarf"; Quantity = 1; } ]
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
   ]
 
 let tests =
