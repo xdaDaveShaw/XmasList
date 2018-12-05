@@ -3,11 +3,19 @@ module XmasList.State
 open Elmish
 open Types
 
+
+let defaultEditorState =
+    { EditingChildName = ""; CurrentItem = None; ClearingStorage = false; }
+
+let emptyModel =
+  Domain.createDefaultModel defaultEditorState
+
 let init () : Model * Cmd<Msg> =
-  { ChildrensList = []
-    CurrentEditor = { EditingChildName = ""; CurrentItem = None }
-    SantasList = [] },
-  []
+
+  let events = EventStore.loadEvents()
+  let model = Domain.fromEvents defaultEditorState events
+
+  model, []
 
 let updateEditorState model newState =
   { model with CurrentEditor = newState }
@@ -29,8 +37,12 @@ let clearCurrentChild model =
   updateEditorState model newState
 
 let addedChild model =
-  Domain.addChild model.CurrentEditor.EditingChildName model
-  |> clearCurrentChild
+  let newModel, event =
+    Domain.addChild model.CurrentEditor.EditingChildName model
+
+  EventStore.storeEvent event
+
+  newModel |> clearCurrentChild
 
 let clearCurrentItem model =
   let newItem =
@@ -41,15 +53,22 @@ let clearCurrentItem model =
   updateEditorState model newState
 
 let addedItem model =
+
   let newModel, msg =
     match model.CurrentEditor.CurrentItem with
     | Some (_, item) when item = "" -> model, Cmd.ofMsg EndedUpdatingItem
-    | Some (child, item) -> Domain.addItem child { Description = item } model, Cmd.none
+    | Some (child, item) ->
+      let newModel, event = Domain.addItem child { Description = item } model
+      EventStore.storeEvent event
+      newModel, Cmd.none
     | _ -> model, Cmd.none
+
   newModel |> clearCurrentItem, msg
 
 let reviewedChild child naughtyOrNice model =
-  let newModel = Domain.reviewChild child naughtyOrNice model
+  let newModel, event = Domain.reviewChild child naughtyOrNice model
+
+  EventStore.storeEvent event
 
   let msg =
     match naughtyOrNice with
@@ -57,6 +76,16 @@ let reviewedChild child naughtyOrNice model =
     | _ -> Cmd.none
 
   newModel, msg
+
+let updateClearingStorage clearing model =
+  let newEditor = { model.CurrentEditor with ClearingStorage = clearing }
+  { model with CurrentEditor = newEditor }
+
+let beginClearStorage model =
+  model |> updateClearingStorage true
+
+let endClearStorage model =
+  model |> updateClearingStorage false
 
 let update msg model : Model * Cmd<Msg> =
   match msg with
@@ -72,3 +101,10 @@ let update msg model : Model * Cmd<Msg> =
     addedItem model
   | ReviewedChild (child, naughtyOrNice) ->
     reviewedChild child naughtyOrNice model
+  | BeginClearStorage ->
+    beginClearStorage model, []
+  | PerformClearStorage ->
+    EventStore.clearStorage()
+    emptyModel, Cmd.ofMsg EndClearStorage
+  | EndClearStorage ->
+    endClearStorage model, []

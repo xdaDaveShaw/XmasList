@@ -5,7 +5,25 @@ open XmasList.Types
 open Util
 
 let private defaultModel =
-  fst (State.init())
+  let editorState =
+    { EditingChildName = ""; CurrentItem = None; ClearingStorage = false; }
+
+  Domain.createDefaultModel editorState
+
+let private addItem n i m =
+  let r, _ = Domain.addItem n i m
+  r
+
+let private addChild n m =
+  let r, _ = Domain.addChild n m
+  r
+
+let private reviewChild n non m =
+  let r, _ = Domain.reviewChild n non m
+  r
+
+let fromEvents es =
+  Domain.fromEvents defaultModel.CurrentEditor es
 
 let testCases =
   [
@@ -14,26 +32,25 @@ let testCases =
       let child2 = "Shaw"
 
       let newModel =
-        Domain.addChild child1 defaultModel
-        |> Domain.addChild child2
+        addChild child1 defaultModel
+        |> addChild child2
 
       let expected = [
         { Name = child1; NaughtyOrNice = Undecided }
-        { Name = child2; NaughtyOrNice = Undecided }
-      ]
+        { Name = child2; NaughtyOrNice = Undecided } ]
 
       newModel.ChildrensList == expected
 
 
     testCase "Cannot add child with no name" <| fun () ->
       let child = ""
-      let newModel = Domain.addChild child defaultModel
+      let newModel = addChild child defaultModel
 
       defaultModel == newModel
 
     testCase "Cannot add child twice" <| fun () ->
-      let modelAfter1 = Domain.addChild "Dave" defaultModel
-      let modelAfter2 = Domain.addChild "Dave" modelAfter1
+      let modelAfter1 = addChild "Dave" defaultModel
+      let modelAfter2 = addChild "Dave" modelAfter1
 
       modelAfter1 == modelAfter2
 
@@ -41,7 +58,7 @@ let testCases =
       let child = { Name = "Dave"; NaughtyOrNice = Undecided }
       let model = { defaultModel with ChildrensList = [ child ] }
 
-      let newModel = Domain.reviewChild "Dave" (Nice []) model
+      let newModel = reviewChild "Dave" (Nice []) model
 
       let expected = { child with NaughtyOrNice = Nice [] }
       let actual = newModel.ChildrensList |> List.head
@@ -51,7 +68,7 @@ let testCases =
       let child = { Name = "Dave"; NaughtyOrNice = Undecided }
       let model = { defaultModel with ChildrensList = [ child ] }
 
-      let newModel = Domain.reviewChild "Dave" Naughty model
+      let newModel = reviewChild "Dave" Naughty model
 
       let expected = { child with NaughtyOrNice = Naughty }
       let actual = newModel.ChildrensList |> List.head
@@ -62,7 +79,7 @@ let testCases =
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
 
-      let newModel = Domain.addItem "Dave" item model
+      let newModel = addItem "Dave" item model
 
       model == newModel
 
@@ -71,7 +88,7 @@ let testCases =
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
 
-      let newModel = Domain.addItem "Dave" item model
+      let newModel = addItem "Dave" item model
 
       model == newModel
 
@@ -80,7 +97,7 @@ let testCases =
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
 
-      let newModel = Domain.addItem "Dave" item model
+      let newModel = addItem "Dave" item model
 
       let expectedChild = [ { child with NaughtyOrNice = Nice [ item ] } ]
       let actualChild = newModel.ChildrensList
@@ -94,7 +111,7 @@ let testCases =
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "" }
 
-      let newModel = Domain.addItem "Dave" item model
+      let newModel = addItem "Dave" item model
 
       let expectedChild = [ { child with NaughtyOrNice = Nice [] } ]
       let actualChild = newModel.ChildrensList
@@ -109,8 +126,8 @@ let testCases =
       let item = { Description = "Book" }
 
       let newModel =
-        Domain.addItem "Dave" item model
-        |> Domain.addItem "Dave" item
+        addItem "Dave" item model
+        |> addItem "Dave" item
 
       let expectedChild = [ { child with NaughtyOrNice = Nice [ item ] } ]
       let actualChildren = newModel.ChildrensList
@@ -126,8 +143,8 @@ let testCases =
       let item = { Description = "Book" }
 
       let newModel =
-        Domain.addItem "Dave" item model
-        |> Domain.addItem "Shaw" item
+        addItem "Dave" item model
+        |> addItem "Shaw" item
 
       let expectedChildren = [
         { child1 with NaughtyOrNice = Nice [ item ] }
@@ -149,9 +166,9 @@ let testCases =
       let item3 = { Description = "Scarf" }
 
       let newModel =
-        Domain.addItem "Dave" item1 model
-        |> Domain.addItem "Dave" item2
-        |> Domain.addItem "Dave" item3
+        addItem "Dave" item1 model
+        |> addItem "Dave" item2
+        |> addItem "Dave" item3
 
       let expectedChild = { child with NaughtyOrNice = Nice [ item1; item2; item3; ] }
       let actualChild = newModel.ChildrensList |> List.head
@@ -173,8 +190,8 @@ let testCases =
       let item2 = { Description = "book" }
 
       let newModel =
-        Domain.addItem "Dave" item1 model
-        |> Domain.addItem "Dave" item2
+        addItem "Dave" item1 model
+        |> addItem "Dave" item2
 
       let expectedChild = { child with NaughtyOrNice = Nice [ item1; ] }
       let actualChild = newModel.ChildrensList |> List.head
@@ -193,8 +210,8 @@ let testCases =
       let item2 = { Description = "book" }
 
       let newModel =
-        Domain.addItem "Dave" item1 model
-        |> Domain.addItem "Shaw" item2
+        addItem "Dave" item1 model
+        |> addItem "Shaw" item2
 
       let expectedChildren = [
         { child1 with NaughtyOrNice = Nice [ item1 ] }
@@ -214,8 +231,8 @@ let testCases =
       let item2 = { Description = "book " }
 
       let newModel =
-        Domain.addItem "Dave" item1 model
-        |> Domain.addItem "Shaw" item2
+        addItem "Dave" item1 model
+        |> addItem "Shaw" item2
 
       let expectedItem = { Description = "book" }
 
@@ -230,13 +247,140 @@ let testCases =
       actualSanta == expectedSanta
 
     testCase "Ensure leading/trailing whitespace is removed on children" <| fun () ->
-      let modelAfter1 = Domain.addChild " Dave" defaultModel
-      let modelAfter2 = Domain.addChild "Dave " modelAfter1
+      let modelAfter1 = addChild " Dave" defaultModel
+      let modelAfter2 = addChild "Dave " modelAfter1
 
       let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Undecided } ]
 
       modelAfter1 == modelAfter2
       modelAfter2.ChildrensList == expectedChildren
+
+    testCase "Add child returns correct event" <| fun () ->
+      let _, event =
+        Domain.addChild "Dave" defaultModel
+
+      event == EventStore.AddedChild "Dave"
+
+    testCase "Add item returns correct event" <| fun () ->
+      let child = { Name = "Dave"; NaughtyOrNice = Nice [] }
+      let model = { defaultModel with ChildrensList = [ child ] }
+      let item = { Description = "Book" }
+
+      let _, event = Domain.addItem "Dave" item model
+
+      event == EventStore.AddedItem ("Dave", "Book")
+
+    testCase "Reviewing child returns correct event" <| fun () ->
+      let model =
+        addChild "Dave" defaultModel
+        |> addChild "Shaw"
+        |> addChild "More"
+
+      let _, niceEvent =
+        Domain.reviewChild "Dave" (Nice []) model
+      let _, naughtyEvent =
+        Domain.reviewChild "Shaw" (Naughty) model
+      let _, undecidedEvent =
+        Domain.reviewChild "More" (Undecided) model
+
+      niceEvent == EventStore.ReviewedChild ("Dave", "Nice")
+      naughtyEvent == EventStore.ReviewedChild ("Shaw", "Naughty")
+      undecidedEvent == EventStore.ReviewedChild ("More", "Undecided")
+
+    testCase "Loading from no events" <| fun () ->
+      let events = []
+      let model = fromEvents events
+
+      let expectedModel = defaultModel
+
+      model == expectedModel
+
+    testCase "Loading from Added Child Event" <| fun () ->
+      let events = [ EventStore.AddedChild "Dave" ]
+      let model = fromEvents events
+
+      let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Undecided; } ]
+      let expectedSanta = []
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
+
+    testCase "Loading from Added Child with Nice Review Event" <| fun () ->
+      let events = [
+        EventStore.AddedChild "Dave"
+        EventStore.ReviewedChild ("Dave", "Nice") ]
+      let model = fromEvents events
+
+      let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Nice []; } ]
+      let expectedSanta = []
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
+
+    testCase "Loading from Added Child with Naughty Review Event" <| fun () ->
+      let events = [
+        EventStore.AddedChild "Dave"
+        EventStore.ReviewedChild ("Dave", "Naughty") ]
+      let model = fromEvents events
+
+      let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Naughty; } ]
+      let expectedSanta = []
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
+
+    testCase "Loading from Added Child with Nice Review and Items Events" <| fun () ->
+      let events = [
+        EventStore.AddedChild "Dave"
+        EventStore.ReviewedChild ("Dave", "Nice")
+        EventStore.AddedItem ("Dave", "Book")
+        EventStore.AddedItem ("Dave", "Hat") ]
+      let model = fromEvents events
+
+      let expectedChildren = [
+        { Name = "Dave";
+          NaughtyOrNice = Nice [ { Description = "Book" }; { Description = "Hat" }]; } ]
+      let expectedSanta = [
+        { ItemName = "Book"; Quantity = 1; }
+        { ItemName = "Hat"; Quantity = 1; } ]
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
+
+    testCase "Loading Integration Test" <| fun () ->
+      let events = [
+        EventStore.AddedChild "Dave"
+        EventStore.ReviewedChild ("Dave", "Nice")
+        EventStore.AddedChild "Shaw"
+        EventStore.AddedChild "Alice"
+        EventStore.AddedChild "Bob"
+        EventStore.AddedItem ("Dave", "Book")
+        EventStore.AddedItem ("Dave", "Hat")
+        EventStore.ReviewedChild ("Shaw", "Nice")
+        EventStore.AddedItem ("Shaw", "Book")
+        EventStore.AddedItem ("Shaw", "Scarf")
+        EventStore.ReviewedChild ("Bob", "Naughty") ]
+      let model = fromEvents events
+
+      let expectedChildren = [
+        { Name = "Dave";
+          NaughtyOrNice = Nice [ { Description = "Book" }; { Description = "Hat" }]; }
+        { Name = "Shaw";
+          NaughtyOrNice = Nice [ { Description = "Book" }; { Description = "Scarf" }]; }
+        { Name = "Alice"; NaughtyOrNice = Undecided; }
+        { Name = "Bob"; NaughtyOrNice = Naughty; } ]
+      let expectedSanta = [
+        { ItemName = "Book"; Quantity = 2; }
+        { ItemName = "Hat"; Quantity = 1; }
+        { ItemName = "Scarf"; Quantity = 1; } ]
+      let expectedModel =
+        { defaultModel with ChildrensList = expectedChildren; SantasList = expectedSanta; }
+
+      model == expectedModel
   ]
 
 let tests =

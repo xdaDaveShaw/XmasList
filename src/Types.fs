@@ -22,6 +22,7 @@ type SantasItem = {
 type CurrentEditorState = {
   EditingChildName: string
   CurrentItem: (string * string) option
+  ClearingStorage: bool
 }
 
 type Model = {
@@ -37,3 +38,6 @@ type Msg =
   | AddedChild
   | AddedItem
   | ReviewedChild of string * NaughtyOrNice
+  | BeginClearStorage
+  | PerformClearStorage
+  | EndClearStorage

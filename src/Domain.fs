@@ -2,14 +2,20 @@ module XmasList.Domain
 
 open XmasList.Types
 
-type AddChild = string -> Model -> Model
-type AddItem = string -> Item -> Model -> Model
-type ReviewChild = string -> NaughtyOrNice -> Model -> Model
+type AddChild = string -> Model -> Model * EventStore.Event
+type AddItem = string -> Item -> Model -> Model * EventStore.Event
+type ReviewChild = string -> NaughtyOrNice -> Model -> Model * EventStore.Event
+type FromEvents = CurrentEditorState -> EventStore.Event list -> Model
 
 // Private functions for aggreates
 type private AddItemToChild = Child -> Item -> Child * bool
 type private UpdateChild = Child list -> Child -> Child list
 type private UpdateSantasList = SantasItem list -> Item -> SantasItem list
+
+let createDefaultModel editorState =
+  { ChildrensList = []
+    CurrentEditor = editorState
+    SantasList = [] }
 
 let private equalCI a b =
   System.String.Equals(a, b, System.StringComparison.CurrentCultureIgnoreCase)
@@ -24,12 +30,17 @@ let private canAddChild name children =
 let addChild : AddChild =
   fun child model ->
 
+    let event = EventStore.AddedChild child
+
     let child = child.Trim()
 
-    if canAddChild child model.ChildrensList then
-      { model with ChildrensList = model.ChildrensList @ [ { Name = child; NaughtyOrNice = Undecided; } ] }
-    else
-      model
+    let newModel =
+      if canAddChild child model.ChildrensList then
+        { model with ChildrensList = model.ChildrensList @ [ { Name = child; NaughtyOrNice = Undecided; } ] }
+      else
+        model
+
+    newModel, event
 
 let private canAddItem newItem items =
   not (System.String.IsNullOrEmpty(newItem.Description))
@@ -88,6 +99,8 @@ let private findExistingChild model name =
 let addItem : AddItem =
   fun child item model ->
 
+    let event = EventStore.AddedItem (child, item.Description)
+
     let existingChild = findExistingChild model child
 
     let newChild, success = addItemToChild existingChild item
@@ -103,10 +116,23 @@ let addItem : AddItem =
 
     { model with
         ChildrensList = newChildList
-        SantasList = newSantaList }
+        SantasList = newSantaList }, event
+
+let private nonToString = function
+  | Undecided -> "Undecided"
+  | Nice _ -> "Nice"
+  | Naughty -> "Naughty"
+
+let private stringToNon = function
+  | "Undecided" -> Undecided
+  | "Nice" -> Nice []
+  | "Naughty" -> Naughty
+  | s -> failwith (sprintf "Unknown Naughty Or Nice: %s" s)
 
 let reviewChild : ReviewChild =
   fun child non model ->
+
+    let event = EventStore.ReviewedChild (child, non |> nonToString)
 
     let existingChild = findExistingChild model child
 
@@ -116,4 +142,22 @@ let reviewChild : ReviewChild =
     let newChildList =
       updateChild model.ChildrensList newChild
 
-    { model with ChildrensList = newChildList }
+    { model with ChildrensList = newChildList }, event
+
+let fromEvents : FromEvents =
+  fun editorState events ->
+
+    let processEvent m ev =
+      let model, _ =
+        match ev with
+        | EventStore.AddedChild name -> m |> addChild name
+        | EventStore.ReviewedChild (name, non) -> m |> reviewChild name (stringToNon non)
+        | EventStore.AddedItem (name, item) -> m |> addItem name { Description = item }
+      model
+
+    let model =
+      createDefaultModel editorState
+
+    events
+    |> List.fold processEvent model
+
