@@ -7,6 +7,18 @@ open Util
 let private defaultModel =
   fst (State.init())
 
+let addItem n i m =
+  let r, _ = Domain.addItem n i m
+  r
+
+let addChild n m =
+  let r, _ = Domain.addChild n m
+  r
+
+let reviewChild n non m =
+  let r, _ = Domain.reviewChild n non m
+  r
+
 let testCases =
   [
     testCase "Adding children works" <| fun () ->
@@ -14,26 +26,25 @@ let testCases =
       let child2 = "Shaw"
 
       let newModel =
-        Domain.addChild child1 defaultModel
-        |> Domain.addChild child2
+        addChild child1 defaultModel
+        |> addChild child2
 
       let expected = [
         { Name = child1; NaughtyOrNice = Undecided }
-        { Name = child2; NaughtyOrNice = Undecided }
-      ]
+        { Name = child2; NaughtyOrNice = Undecided } ]
 
       newModel.ChildrensList == expected
 
 
     testCase "Cannot add child with no name" <| fun () ->
       let child = ""
-      let newModel = Domain.addChild child defaultModel
+      let newModel = addChild child defaultModel
 
       defaultModel == newModel
 
     testCase "Cannot add child twice" <| fun () ->
-      let modelAfter1 = Domain.addChild "Dave" defaultModel
-      let modelAfter2 = Domain.addChild "Dave" modelAfter1
+      let modelAfter1 = addChild "Dave" defaultModel
+      let modelAfter2 = addChild "Dave" modelAfter1
 
       modelAfter1 == modelAfter2
 
@@ -41,7 +52,7 @@ let testCases =
       let child = { Name = "Dave"; NaughtyOrNice = Undecided }
       let model = { defaultModel with ChildrensList = [ child ] }
 
-      let newModel = Domain.reviewChild "Dave" (Nice []) model
+      let newModel = reviewChild "Dave" (Nice []) model
 
       let expected = { child with NaughtyOrNice = Nice [] }
       let actual = newModel.ChildrensList |> List.head
@@ -51,7 +62,7 @@ let testCases =
       let child = { Name = "Dave"; NaughtyOrNice = Undecided }
       let model = { defaultModel with ChildrensList = [ child ] }
 
-      let newModel = Domain.reviewChild "Dave" Naughty model
+      let newModel = reviewChild "Dave" Naughty model
 
       let expected = { child with NaughtyOrNice = Naughty }
       let actual = newModel.ChildrensList |> List.head
@@ -62,7 +73,7 @@ let testCases =
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
 
-      let newModel = Domain.addItem "Dave" item model
+      let newModel = addItem "Dave" item model
 
       model == newModel
 
@@ -71,7 +82,7 @@ let testCases =
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
 
-      let newModel = Domain.addItem "Dave" item model
+      let newModel = addItem "Dave" item model
 
       model == newModel
 
@@ -80,7 +91,7 @@ let testCases =
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "Book" }
 
-      let newModel = Domain.addItem "Dave" item model
+      let newModel = addItem "Dave" item model
 
       let expectedChild = [ { child with NaughtyOrNice = Nice [ item ] } ]
       let actualChild = newModel.ChildrensList
@@ -94,7 +105,7 @@ let testCases =
       let model = { defaultModel with ChildrensList = [ child ] }
       let item = { Description = "" }
 
-      let newModel = Domain.addItem "Dave" item model
+      let newModel = addItem "Dave" item model
 
       let expectedChild = [ { child with NaughtyOrNice = Nice [] } ]
       let actualChild = newModel.ChildrensList
@@ -109,8 +120,8 @@ let testCases =
       let item = { Description = "Book" }
 
       let newModel =
-        Domain.addItem "Dave" item model
-        |> Domain.addItem "Dave" item
+        addItem "Dave" item model
+        |> addItem "Dave" item
 
       let expectedChild = [ { child with NaughtyOrNice = Nice [ item ] } ]
       let actualChildren = newModel.ChildrensList
@@ -126,8 +137,8 @@ let testCases =
       let item = { Description = "Book" }
 
       let newModel =
-        Domain.addItem "Dave" item model
-        |> Domain.addItem "Shaw" item
+        addItem "Dave" item model
+        |> addItem "Shaw" item
 
       let expectedChildren = [
         { child1 with NaughtyOrNice = Nice [ item ] }
@@ -149,9 +160,9 @@ let testCases =
       let item3 = { Description = "Scarf" }
 
       let newModel =
-        Domain.addItem "Dave" item1 model
-        |> Domain.addItem "Dave" item2
-        |> Domain.addItem "Dave" item3
+        addItem "Dave" item1 model
+        |> addItem "Dave" item2
+        |> addItem "Dave" item3
 
       let expectedChild = { child with NaughtyOrNice = Nice [ item1; item2; item3; ] }
       let actualChild = newModel.ChildrensList |> List.head
@@ -173,8 +184,8 @@ let testCases =
       let item2 = { Description = "book" }
 
       let newModel =
-        Domain.addItem "Dave" item1 model
-        |> Domain.addItem "Dave" item2
+        addItem "Dave" item1 model
+        |> addItem "Dave" item2
 
       let expectedChild = { child with NaughtyOrNice = Nice [ item1; ] }
       let actualChild = newModel.ChildrensList |> List.head
@@ -193,8 +204,8 @@ let testCases =
       let item2 = { Description = "book" }
 
       let newModel =
-        Domain.addItem "Dave" item1 model
-        |> Domain.addItem "Shaw" item2
+        addItem "Dave" item1 model
+        |> addItem "Shaw" item2
 
       let expectedChildren = [
         { child1 with NaughtyOrNice = Nice [ item1 ] }
@@ -214,8 +225,8 @@ let testCases =
       let item2 = { Description = "book " }
 
       let newModel =
-        Domain.addItem "Dave" item1 model
-        |> Domain.addItem "Shaw" item2
+        addItem "Dave" item1 model
+        |> addItem "Shaw" item2
 
       let expectedItem = { Description = "book" }
 
@@ -230,8 +241,8 @@ let testCases =
       actualSanta == expectedSanta
 
     testCase "Ensure leading/trailing whitespace is removed on children" <| fun () ->
-      let modelAfter1 = Domain.addChild " Dave" defaultModel
-      let modelAfter2 = Domain.addChild "Dave " modelAfter1
+      let modelAfter1 = addChild " Dave" defaultModel
+      let modelAfter2 = addChild "Dave " modelAfter1
 
       let expectedChildren = [ { Name = "Dave"; NaughtyOrNice = Undecided } ]
 

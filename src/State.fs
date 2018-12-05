@@ -29,8 +29,12 @@ let clearCurrentChild model =
   updateEditorState model newState
 
 let addedChild model =
-  Domain.addChild model.CurrentEditor.EditingChildName model
-  |> clearCurrentChild
+  let newModel, event =
+    Domain.addChild model.CurrentEditor.EditingChildName model
+
+  EventStore.storeEvent event
+
+  newModel |> clearCurrentChild
 
 let clearCurrentItem model =
   let newItem =
@@ -41,15 +45,22 @@ let clearCurrentItem model =
   updateEditorState model newState
 
 let addedItem model =
+
   let newModel, msg =
     match model.CurrentEditor.CurrentItem with
     | Some (_, item) when item = "" -> model, Cmd.ofMsg EndedUpdatingItem
-    | Some (child, item) -> Domain.addItem child { Description = item } model, Cmd.none
+    | Some (child, item) ->
+      let newModel, event = Domain.addItem child { Description = item } model
+      EventStore.storeEvent event
+      newModel, Cmd.none
     | _ -> model, Cmd.none
+
   newModel |> clearCurrentItem, msg
 
 let reviewedChild child naughtyOrNice model =
-  let newModel = Domain.reviewChild child naughtyOrNice model
+  let newModel, event = Domain.reviewChild child naughtyOrNice model
+
+  EventStore.storeEvent event
 
   let msg =
     match naughtyOrNice with
