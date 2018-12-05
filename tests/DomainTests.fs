@@ -7,15 +7,15 @@ open Util
 let private defaultModel =
   fst (State.init())
 
-let addItem n i m =
+let private addItem n i m =
   let r, _ = Domain.addItem n i m
   r
 
-let addChild n m =
+let private addChild n m =
   let r, _ = Domain.addChild n m
   r
 
-let reviewChild n non m =
+let private reviewChild n non m =
   let r, _ = Domain.reviewChild n non m
   r
 
