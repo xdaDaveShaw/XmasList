@@ -17,6 +17,7 @@ Target.create "Clean" (fun _ ->
   !! "src/**/bin"
   ++ "src/**/obj"
   ++ "tests/output"
+  ++ "deploy"
   |> Shell.cleanDirs
 )
 let inline withWorkDir wd =
