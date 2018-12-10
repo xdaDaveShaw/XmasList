@@ -42,7 +42,7 @@
       }
     },
     {
-      "label": "Build Tests",
+      "label": "Build JS Tests",
       "args": [
         "test-buildwatch"
       ],
@@ -74,16 +74,12 @@
       }
     },
     {
-      "label": "Run Tests",
+      "label": "Run JS Tests",
       "args": [
         "test-watch"
       ],
       "command": "yarn",
       "isBackground": true,
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      },
       "type": "shell",
       "problemMatcher": {
         "fileLocation": "absolute",
@@ -93,6 +89,36 @@
         "pattern": {
           "regexp": "failed"
         }
+      }
+    },
+    {
+      "label": "Run dotnet Tests",
+      "args": [
+        "watch",
+        "run"
+      ],
+      "command": "dotnet",
+      "options": {
+        "cwd": "${workspaceRoot}/tests"
+      },
+      "isBackground": true,
+      "type": "process",
+      "problemMatcher": {
+        "fileLocation": "absolute",
+        "background": {
+          "activeOnStart": true,
+        },
+        "pattern": {
+          "regexp": "failed"
+        }
+      }
+    },
+    {
+      "label": "Test",
+      "dependsOn": [ "Build JS Tests", "Run JS Tests", "Run dotnet Tests" ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
       }
     }
   ]
