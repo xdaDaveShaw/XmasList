@@ -3,12 +3,12 @@ nuget Fake.IO.FileSystem
 nuget Fake.DotNet.Cli
 nuget Fake.JavaScript.Yarn
 nuget Fake.Core.Target //"
+
 #load ".fake/build.fsx/intellisense.fsx"
 
 open Fake.Core
 open Fake.DotNet
 open Fake.IO
-open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.JavaScript
@@ -34,23 +34,25 @@ Target.create "Hack" (fun _ ->
   System.IO.File.Copy("./hack/Matchers.fs", matcher, true)
 )
 
+let defaultOpts = id
+
 Target.create "YarnInstall" (fun _ ->
-  Yarn.install (fun opts -> opts)
+  Yarn.install defaultOpts
   |> ignore
 )
 
 Target.create "Build" (fun _ ->
-  Yarn.exec "run build" (fun opts -> opts)
+  Yarn.exec "run build" defaultOpts
   |> ignore
 )
 
 Target.create "TestBuild-Jest" (fun _ ->
-  Yarn.exec "run test-build" (fun opts -> opts)
+  Yarn.exec "run test-build" defaultOpts
   |> ignore
 )
 
 Target.create "Test-Jest" (fun _ ->
-  Yarn.exec "run test" (fun opts -> opts)
+  Yarn.exec "run test" defaultOpts
   |> ignore
 )
 
