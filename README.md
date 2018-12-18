@@ -6,6 +6,14 @@ This is an application I've written to go along with my [Blog Post][1] for the F
 
 ## Developing
 
+### Prerequisites
+
+- .NET Core
+- Yarn
+- VS Code (with Ionide)
+
+### Coding
+
 - To get started clone the repository and run the `build.cmd` or `build.sh` script fetch all the dependencies and bundle the site.
 - Open the Repo in VS Code and run the "Build Task" (Ctrl + Shift + B)
 - Now run the "Test Task" to set all the tests running in Watch Mode.
