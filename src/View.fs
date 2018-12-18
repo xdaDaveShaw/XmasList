@@ -190,6 +190,33 @@ let renderSantasList list =
       ul [ ] items
     ]
 
+let renderNavbar =
+  Navbar.navbar [ Navbar.Color Color.IsPrimary ] [
+    Navbar.Brand.div [ ] [
+     a [ Href "/" ] [
+      Image.image [ Image.Is48x48 ] [
+        img [ Src "img/brand.png" ]
+      ]]
+    ]
+
+    Navbar.menu [ ] [
+      Navbar.Item.div [ ] [
+        Heading.h2 [
+        ] [ str "Santa's Xmas Manager"]
+      ]
+
+      Navbar.End.div [ ] [
+        a [
+          Href "https://github.com/xdaDaveShaw/XmasList"
+        ] [
+          Icon.icon [ Icon.Size Size.IsLarge ] [
+            Fa.i [ Fa.Brand.Github; Fa.Size Fa.Fa3x ] [ ]
+          ]
+        ]
+      ]
+    ]
+  ]
+
 let renderClearStorage dispatch currentEditor =
 
   let createButton text icon color msg =
@@ -212,21 +239,18 @@ let renderClearStorage dispatch currentEditor =
   Content.content [ ] [
     Button.list [ ] buttons ]
 
+let renderFooter =
+  Footer.footer [ ] [
+    str "Santa's Xmas Manager, created by "
+    a [Href "https://taeguk.co.uk/about/"] [ str "Dave Shaw" ]
+    str " for the "
+    a [ Href "https://taeguk.co.uk/blog/santas-xmas-list-in-fable/" ] [ str "F# Advent Calendar 2018" ]
+  ]
+
 let root model dispatch =
   div [ ] [
 
-    Navbar.navbar [ Navbar.Color Color.IsPrimary ] [
-      Navbar.Brand.div [ ] [
-         a [ Href "/" ] [
-          Image.image [ Image.Is48x48 ] [
-            img [ Src "img/brand.png" ]
-          ]]]
-
-      Navbar.Item.div [ ] [
-        Heading.h2 [
-        ] [ str "Santa's Xmas Manager"]
-      ]
-    ]
+    renderNavbar
 
     Container.container [ ] [
       renderAddChild dispatch model
@@ -234,4 +258,6 @@ let root model dispatch =
       renderSantasList model.SantasList
       renderClearStorage dispatch model.CurrentEditor
     ]
+
+    renderFooter
   ]
