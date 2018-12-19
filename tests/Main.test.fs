@@ -1,6 +1,5 @@
 module TestsMain
 
-
 let allTests =
   [|
     DomainTests.tests
