@@ -148,16 +148,16 @@ let fromEvents : FromEvents =
   fun editorState events ->
 
     let processEvent m ev =
-      let model, _ =
+      let updatedModel, _ =
         match ev with
         | EventStore.AddedChild name -> m |> addChild name
         | EventStore.ReviewedChild (name, non) -> m |> reviewChild name (stringToNon non)
         | EventStore.AddedItem (name, item) -> m |> addItem name { Description = item }
-      model
+      updatedModel
 
-    let model =
+    let state0 =
       createDefaultModel editorState
 
-    (model, events)
+    (state0, events)
     ||> List.fold processEvent
 
