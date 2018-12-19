@@ -158,6 +158,6 @@ let fromEvents : FromEvents =
     let model =
       createDefaultModel editorState
 
-    events
-    |> List.fold processEvent model
+    (model, events)
+    ||> List.fold processEvent
 
