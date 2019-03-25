@@ -1,0 +1,29 @@
+pool:
+  name: Hosted VS2017
+steps:
+- script: build.cmd
+  displayName: 'Build on Windows'
+
+- task: PublishTestResults@2
+  displayName: 'Publish Windows JS Test Results'
+  inputs:
+    testResultsFiles: junit.xml
+    mergeTestResults: true
+    testRunTitle: 'Windows JS Tests'
+
+- task: PublishTestResults@2
+  displayName: 'Publish Windows dotnet Test Results'
+  inputs:
+    testResultsFormat: NUnit
+    testResultsFiles: nunit.xml
+    mergeTestResults: true
+    testRunTitle: 'Windows dotnet Tests'
+
+- powershell: '$Env:SYSTEM_PULLREQUEST_SOURCEBRANCH > $(Build.Repository.LocalPath)\deploy\branch.txt'
+  displayName: 'Write Source BranchName to Artifact Folder'
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+- task: PublishPipelineArtifact@0
+  displayName: 'Publish Pipeline Artifact'
+  inputs:
+    targetPath: deploy

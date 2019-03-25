@@ -1,0 +1,23 @@
+pool:
+  name: Hosted Ubuntu 1604
+steps:
+- task: Bash@3
+  displayName: 'Build on Ubuntu'
+  inputs:
+    targetType: filePath
+    filePath: ./build.sh
+
+- task: PublishTestResults@2
+  displayName: 'Publish Ubuntu JS Test Results'
+  inputs:
+    testResultsFiles: junit.xml
+    mergeTestResults: true
+    testRunTitle: 'Ubuntu JS Tests'
+
+- task: PublishTestResults@2
+  displayName: 'Publish Ubuntu dotnet Test Results '
+  inputs:
+    testResultsFormat: NUnit
+    testResultsFiles: nunit.xml
+    mergeTestResults: true
+    testRunTitle: 'Ubuntu dotnet Tests'
