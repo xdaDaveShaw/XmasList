@@ -1,14 +1,14 @@
 module XmasList.View
 
 open Fable.Core.JsInterop
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
 open Fulma
 open Fable.FontAwesome
 open Types
 
 let onEnter dispatch msg =
-  OnKeyDown (fun (ev: Fable.Import.React.KeyboardEvent) ->
+  OnKeyDown (fun (ev: Browser.Types.KeyboardEvent) ->
       match ev with
       | _ when ev.keyCode = 13. ->
           ev.preventDefault()

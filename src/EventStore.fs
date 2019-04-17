@@ -17,14 +17,14 @@ open Thoth.Json
 let private backingStore = new ResizeArray<Event>()
 
 [<Literal>]
-let key = "xmas-list"
+let Key = "xmas-list"
 
 let storeEvent event =
   backingStore.Add(event)
 
   let json = Encode.Auto.toString(0, backingStore)
 
-  Browser.localStorage.setItem(key, json)
+  Browser.WebStorage.localStorage.setItem(Key, json)
 
 let decode json =
   match Decode.Auto.fromString<Event list>(json) with
@@ -33,11 +33,11 @@ let decode json =
 
 let loadEvents() =
   let events =
-    !!Browser.localStorage.getItem(key)
+    !!Browser.WebStorage.localStorage.getItem(Key)
     |> Option.map decode
     |> Option.defaultValue []
   backingStore.AddRange(events)
   events
 
 let clearStorage() =
-  Browser.localStorage.removeItem key
+  Browser.WebStorage.localStorage.removeItem Key
