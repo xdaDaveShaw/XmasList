@@ -2734,15 +2734,15 @@ extsprintf@^1.2.0:
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
 
-fable-babel-plugins@^2.1.0, fable-babel-plugins@^2.2.0:
+fable-babel-plugins@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/fable-babel-plugins/-/fable-babel-plugins-2.2.0.tgz#2c61be1bd1afb1f03da4e66ccaa1bfecf92063a3"
   integrity sha512-4g8CIyXCILk5LLiwNPtvtrPy3YuV5eJV18SYJCZxu3A1BSKNvPGHLSg5YcFJ2zt4qmBvSkBewlQ2bVQYG+TnrQ==
 
-fable-compiler@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/fable-compiler/-/fable-compiler-2.3.0.tgz#22dd0c0b16bb1cd6a8e85c6b379a6058c74b22fd"
-  integrity sha512-Za4BALmI2BffWNQ91rjUk4x1MxKve7iWWCXuITuM+u4eO766ztzhtGHGRXsQlojDwSxyYbq3ahf2YAwHp2BJ3g==
+fable-compiler@^2.3.5:
+  version "2.3.5"
+  resolved "https://registry.yarnpkg.com/fable-compiler/-/fable-compiler-2.3.5.tgz#a2ee9dbdc2dba97a52c26dbc424457464bc26dd5"
+  integrity sha512-YGFN9FYefHvFiotfIvYqbPEHzHzRhJGKt9UOacDmcJwhjua6tbS7Grth5i4mpJis0iJnaQC5i45cclM+K2ZgwQ==
 
 fable-loader@^2.1.6:
   version "2.1.6"
@@ -2751,16 +2751,16 @@ fable-loader@^2.1.6:
   dependencies:
     fable-babel-plugins "^2.2.0"
 
-fable-splitter@^2.1.7:
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/fable-splitter/-/fable-splitter-2.1.7.tgz#0f3cc4549dd8d8bd1407d6b1cebd4d6319dbff90"
-  integrity sha512-MUiZp83BLyeWgdfJkcMhTAmmIVQJ6YwH312KJQ7hS6balOR43DiH40ja5zbfQ4IoGqae43jdSlEapB3bFZ5qJQ==
+fable-splitter@^2.1.8:
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/fable-splitter/-/fable-splitter-2.1.8.tgz#0b3e9ae14a3ad490fc819523720ef77361c1e721"
+  integrity sha512-qAbkWowyZtvZI+Evy/wn8/4+Xw8n5D8s6PoFI1XVrlodl98EImc4RmG2IbaJVYC3EmShEcbjg2RGDdaC9fCWog==
   dependencies:
     "@babel/core" "^7.1.6"
     "@babel/plugin-transform-modules-commonjs" "^7.1.0"
     chalk "^2.4.1"
     chokidar "^2.0.4"
-    fable-babel-plugins "^2.1.0"
+    fable-babel-plugins "^2.2.0"
     fs-extra "^7.0.0"
 
 fast-deep-equal@^2.0.1:
