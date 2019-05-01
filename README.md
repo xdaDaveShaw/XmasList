@@ -21,7 +21,7 @@ This is an application I've written to go along with my [Blog Post][1] for the F
 
 ## Live Site
 
-https://s3-eu-west-1.amazonaws.com/xmaslist/index.html
+https://xmaslist.s3-eu-west-1.amazonaws.com/index.html
 
 ## Acknowledgements
 
