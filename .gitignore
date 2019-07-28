@@ -198,3 +198,4 @@ project.lock.json
 tests/output
 [jn]unit.xml
 deploy/
+.ionide/
