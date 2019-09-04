@@ -71,6 +71,9 @@
           "severity": 6,
           "message": 7
         }
+      },
+      "presentation": {
+        "group": "Tests"
       }
     },
     {
@@ -89,6 +92,9 @@
         "pattern": {
           "regexp": "failed"
         }
+      },
+      "presentation": {
+        "group": "Tests"
       }
     },
     {
@@ -111,6 +117,9 @@
         "pattern": {
           "regexp": "failed"
         }
+      },
+      "presentation": {
+        "group": "Tests"
       }
     },
     {
